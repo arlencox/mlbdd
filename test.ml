@@ -1,4 +1,4 @@
-open OUnit
+open OUnit2
 
 (*let print_sat l =
   let open BDD in
@@ -11,41 +11,40 @@ open OUnit
     ) l;
   print_endline ""*)
 
-let _ =
-  run_test_tt_main begin "1" >::: [
-      "true_canonical" >:: (fun () ->
+let bdd_tests = "BDD tests" >::: [
+      "true_canonical" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let t1 = BDD.dtrue man in
           let t2 = BDD.dtrue man in
           assert_equal ~cmp:BDD.equal t1 t2
         );
-      "false_canonical" >:: (fun () ->
+      "false_canonical" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let t1 = BDD.dfalse man in
           let t2 = BDD.dfalse man in
           assert_equal ~cmp:BDD.equal t1 t2
         );
-      "true != false" >:: (fun () ->
+      "true != false" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let t1 = BDD.dfalse man in
           let t2 = BDD.dtrue man in
           let r = BDD.equal t1 t2 in
           assert_equal r false
         );
-      "and false" >:: (fun () ->
+      "and false" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let v0 = BDD.ithvar man 0 in
           let t1 = BDD.dfalse man in
           let r = BDD.is_false (BDD.dand v0 t1) in
           assert_equal r true
         );
-      "double_negate" >:: (fun () ->
+      "double_negate" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let t1 = BDD.dfalse man in
           let t2 = BDD.dnot (BDD.dnot t1) in
           assert_equal ~cmp:BDD.equal t1 t2
         );
-      "and_canonical" >:: (fun () ->
+      "and_canonical" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let v0 = BDD.ithvar man 0 in
           let v1 = BDD.ithvar man 1 in
@@ -53,7 +52,7 @@ let _ =
           let t2 = BDD.dand v1 v0 in
           assert_equal ~cmp:BDD.equal t1 t2
         );
-      "eq_exists" >:: (fun () ->
+      "eq_exists" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let v0 = BDD.ithvar man 0 in
           let v1 = BDD.ithvar man 1 in
@@ -65,7 +64,7 @@ let _ =
           let t2 = BDD.eq v0 v2 in
           assert_equal ~cmp:BDD.equal t1 t2
         );
-      "and_project" >:: (fun () ->
+      "and_project" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let v0 = BDD.ithvar man 0 in
           let v1 = BDD.ithvar man 1 in
@@ -73,7 +72,7 @@ let _ =
           let t2 = BDD.exists (BDD.support v1) t1 in
           assert_equal ~cmp:BDD.equal v0 t2
         );
-      "tautology" >:: (fun () ->
+      "tautology" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let imply a b = BDD.dor (BDD.dnot a) b in
           let p = BDD.ithvar man 0 in
@@ -84,7 +83,7 @@ let _ =
           let taut = BDD.forall (BDD.support modus_ponens) modus_ponens in
           assert_equal (BDD.is_true taut) true
         );
-      "support string" >:: (fun () ->
+      "support string" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let p = BDD.ithvar man 0 in
           let q = BDD.ithvar man 1 in
@@ -93,25 +92,25 @@ let _ =
           let s = BDD.string_of_support supp in
           assert_equal s "0,1"
         );
-      "bddstring1" >:: (fun () ->
+      "bddstring1" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let p = BDD.ithvar man 0 in
           let s = BDD.to_string p in
           assert_equal s "(0, F, T,2)"
         );
-      "bddstring2" >:: (fun () ->
+      "bddstring2" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let p = BDD.ithvar man 0 in
           let s = BDD.to_string (BDD.dnot p) in
           assert_equal s "~(0, F, T,2)"
         );
-      "bddstringb1" >:: (fun () ->
+      "bddstringb1" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let p = BDD.ithvar man 0 in
           let s = BDD.to_stringb p in
           assert_equal s "(0, F, T,2)"
         );
-      "sat2" >:: (fun () ->
+      "sat2" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let p = BDD.ithvar man 0 in
           let q = BDD.ithvar man 1 in
@@ -121,7 +120,7 @@ let _ =
           | Some s ->
             assert_equal s [(true, 0); (true, 1)]
         );
-      "allsat2" >:: (fun () ->
+      "allsat2" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let p = BDD.ithvar man 0 in
           let q = BDD.ithvar man 1 in
@@ -129,7 +128,7 @@ let _ =
           let r = BDD.allsat pq in
           assert_equal r [[(true, 0); (true, 1)]]
         );
-      "itersat2" >:: (fun () ->
+      "itersat2" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let p = BDD.ithvar man 0 in
           let q = BDD.ithvar man 1 in
@@ -138,7 +137,7 @@ let _ =
               assert_equal s [(true, 0); (true, 1)]
             ) pq
         );
-      "prime2" >:: (fun () ->
+      "prime2" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let p = BDD.ithvar man 0 in
           let q = BDD.ithvar man 1 in
@@ -149,7 +148,7 @@ let _ =
             let r = s = [(true, 0)] || s = [(true, 1)] in
             assert_equal r true
         );
-      "allprime2" >:: (fun () ->
+      "allprime2" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let p = BDD.ithvar man 0 in
           let q = BDD.ithvar man 1 in
@@ -160,7 +159,7 @@ let _ =
           let r = p = r1 || p = r2 in
           assert_equal r true
         );
-      "iterprime2" >:: (fun () ->
+      "iterprime2" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let p = BDD.ithvar man 0 in
           let q = BDD.ithvar man 1 in
@@ -172,7 +171,7 @@ let _ =
               assert_equal r true
             ) pq
         );
-      "cofactor1" >:: (fun () ->
+      "cofactor1" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let p = BDD.ithvar man 0 in
           let q = BDD.ithvar man 1 in
@@ -181,7 +180,7 @@ let _ =
           assert_equal (BDD.is_false c0) true;
           assert_equal ~cmp:BDD.equal c1 q
         );
-      "cofactor2" >:: (fun () ->
+      "cofactor2" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let p = BDD.ithvar man 0 in
           let q = BDD.ithvar man 1 in
@@ -190,7 +189,7 @@ let _ =
           assert_equal (BDD.is_false c0) true;
           assert_equal ~cmp:BDD.equal c1 p
         );
-      "cofactor3" >:: (fun () ->
+      "cofactor3" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let p = BDD.ithvar man 0 in
           let q = BDD.ithvar man 1 in
@@ -202,7 +201,7 @@ let _ =
           let pr2 = BDD.dor c0 c1 in
           assert_equal ~cmp:BDD.equal pr pr2
         );
-      "cofactor4" >:: (fun () ->
+      "cofactor4" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let p = BDD.ithvar man 0 in
           let q = BDD.ithvar man 1 in
@@ -214,7 +213,7 @@ let _ =
           let pr2 = BDD.dand c0 c1 in
           assert_equal ~cmp:BDD.equal pr pr2
         );
-      "cofactor4" >:: (fun () ->
+      "cofactor4" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let p = BDD.ithvar man 0 in
           let q = BDD.ithvar man 1 in
@@ -224,7 +223,7 @@ let _ =
           let (c0,c1) = BDD.cofactor 4 pqr in
           assert_equal ~cmp:BDD.equal c0 c1
         );
-      "cofactor5" >:: (fun () ->
+      "cofactor5" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let p = BDD.ithvar man 0 in
           let q = BDD.ithvar man 1 in
@@ -234,7 +233,7 @@ let _ =
           let (c0,c1) = BDD.cofactor (-1) pqr in
           assert_equal ~cmp:BDD.equal c0 c1
         );
-      "cofactor5" >:: (fun () ->
+      "cofactor5" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let p = BDD.ithvar man 0 in
           let q = BDD.ithvar man 1 in
@@ -242,7 +241,7 @@ let _ =
           let (c0,c1) = BDD.cofactor 4 npq in
           assert_equal ~cmp:BDD.equal c0 c1
         );
-      "cofactor6" >:: (fun () ->
+      "cofactor6" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let p = BDD.ithvar man 0 in
           let q = BDD.ithvar man 1 in
@@ -252,7 +251,7 @@ let _ =
           assert_equal (BDD.is_false c1) true;
           assert_equal ~cmp:BDD.equal c0 (BDD.dnot p)
         );
-      "fold_unit" >:: (fun () ->
+      "fold_unit" >:: (fun ctx ->
           let man = BDD.init ~cache:100 () in
           let p = BDD.ithvar man 0 in
           let q = BDD.ithvar man 1 in
@@ -274,4 +273,77 @@ let _ =
             ) npq in
           assert_equal ~cmp:BDD.equal npq npq2
         );
+    ]
+
+let weakhash_tests = "weak hash tests" >::: [
+      "hash_add" >:: (fun ctx ->
+          let module H = WeakHash.Make(struct
+              type t = int
+              let equal = (=)
+              let hash = Hashtbl.hash
+            end) in
+          let w = H.create 17 in
+          let h = Hashtbl.create 17 in
+          let add k v =
+            Hashtbl.replace h k v;
+            H.replace w k v
+          in
+
+          for i = 0 to 100 do
+            add i (string_of_int i)
+          done;
+
+          Hashtbl.iter (fun k v ->
+                assert_equal v (H.find w k)
+              ) h
+        );
+      (*"hash_big" >:: (fun ctx ->
+          let module H = WeakHash.Make(struct
+              type t = int
+              let equal = (=)
+              let hash = Hashtbl.hash
+            end) in
+          let w = H.create 17 in
+          let h = Hashtbl.create 17 in
+          let element = String.make 5 'a' in
+
+          let hstart = Unix.gettimeofday () in
+          for i = 0 to 1_000_000 do
+            Hashtbl.replace h i element
+          done;
+          let hend = Unix.gettimeofday () in
+
+          let wstart = Unix.gettimeofday () in
+          for i = 0 to 1_000_000 do
+            H.add w i element
+          done;
+          let wend = Unix.gettimeofday () in
+
+          (*OUnit2.logf ctx `Info "Hashtbl: %f, WeakHash: %f\n" (hend -. hstart) (wend -. wstart);*)
+
+          let hstart = Unix.gettimeofday () in
+          for i = 0 to 1_000_000 do
+            ignore(Hashtbl.find h i)
+          done;
+          let hend = Unix.gettimeofday () in
+
+          let wstart = Unix.gettimeofday () in
+          for i = 0 to 1_000_000 do
+            ignore(H.find w i)
+          done;
+          let wend = Unix.gettimeofday () in
+
+          (*OUnit2.logf ctx `Info "Hashtbl: %f, WeakHash: %f\n" (hend -. hstart) (wend -. wstart);*)
+          ()
+
+          (*Hashtbl.iter (fun k v ->
+                assert_equal v (H.find w k)
+              ) h*)
+        );*)
+    ]
+
+let _ =
+  run_test_tt_main begin "all" >::: [
+      bdd_tests;
+      weakhash_tests;
     ] end

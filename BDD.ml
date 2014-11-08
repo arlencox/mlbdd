@@ -22,7 +22,8 @@ module HashedIf = struct
   let hash (l,v,r) = Hashtbl.hash (l,v,r)
 end
 
-module IfHashCons = Hashtbl.Make(HashedIf)
+(*module IfHashCons = Hashtbl.Make(HashedIf)*)
+module IfHashCons = WeakHash.Make(HashedIf)
 
 type man = {
   bdd_hc : node IfHashCons.t;

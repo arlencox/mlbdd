@@ -1,1 +1,1 @@
-<test.*>: package(cudd), package(ounit)
+<*>: package(oUnit), package(mlbdd)

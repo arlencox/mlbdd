@@ -17,15 +17,6 @@ To test this library, ensure that ocamlfind and ounit is installed and run
 
     make test
 
-To run code coverage of the library, ensure that in addition to the above,
-bisect is installed and run
-
-    make coverage
-
-To generate the documentation, run
-
-    make doc
-
 Examples of usage are included in the documentation.
 
 Rationale

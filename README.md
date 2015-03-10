@@ -3,7 +3,7 @@ OCaml Binary Decision Diagrams
 
 The mlbdd library provides a simple, easy-to-use, easy-to-extend implementation
 of binary decision diagrams (BDDs) in OCaml.  It is well tested and well
-documented.  The library itself has no depdendencies and is thus easy to include
+documented.  The library itself has no dependencies and is thus easy to include
 in applications that might, for example, be compiled with js_of_ocaml or other
 tools that rely on pure OCaml.  It is also easier to integrate with existing
 projects due to its lack of dependencies.
@@ -30,7 +30,7 @@ the following:
   - Xavier Leroy: https://gforge.inria.fr/scm/viewvc.php/attic/xlsat/?root=sodiac
 
 While there are many nice design aspects of these packages, there are also
-significant probelms with all of them including lack of performance and API
+significant problems with all of them including lack of performance and API
 limitations.  To solve these problems this library implements BDDs in OCaml
 combining ideas from commercial-grade C BDD implementations with good ideas
 from the above libraries.
@@ -39,7 +39,7 @@ There are two performance problems associated with the above BDD
 implementations.  The first is indirection inefficiency and the second is
 algorithmic inefficiency.  Indirection inefficiency arises when extra
 indirections are introduced when they are not required.  The first BDD
-implementaiton suffer from this problem due to the implementation of hash
+implementation suffer from this problem due to the implementation of hash
 consing that it uses.
 
 Efficient Hash Consing
@@ -132,7 +132,7 @@ BDDs is changed to the following, where a BDD is a cnode.
 There are several simplifications that come out of this form.  First, there is
 no `True` anymore.  The `False` node complemented gives a representation of
 true, so, `True` was redundant.  Second, complement edges are not allowed
-everwhere.  Note that a BDD is a `cnode`, but `If` take a `node` and a `cnode`.
+everywhere.  Note that a BDD is a `cnode`, but `If` take a `node` and a `cnode`.
 The restriction here is that the negative edge out of a node cannot be
 complemented.  This can be guaranteed by the following conversion:
 

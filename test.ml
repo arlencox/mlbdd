@@ -273,6 +273,26 @@ let bdd_tests = "MLBDD tests" >::: [
             ) npq in
           assert_equal ~cmp:MLBDD.equal npq npq2
         );
+      "mkite" >:: (fun ctx ->
+          let man = MLBDD.init () in
+          let b1 = MLBDD.ithvar man 0 in
+          let f = MLBDD.dfalse man in
+          let t = MLBDD.dtrue man in
+          let b2 = MLBDD.ite f 0 t in
+          assert_equal ~cmp:MLBDD.equal b1 b2
+        );
+      "permute" >:: (fun ctx ->
+          let man = MLBDD.init () in
+          let a = MLBDD.ithvar man 0 in
+          let na = MLBDD.dnot a in
+          let b = MLBDD.ithvar man 1 in
+          let nb = MLBDD.dnot b in
+          let b1 = MLBDD.dor na b in
+          let b2 = MLBDD.dor a nb in
+          assert_equal ~cmp:(fun a b -> not (MLBDD.equal a b)) b1 b2;
+          let b3 = MLBDD.permute [| 1; 0 |] b2 in
+          assert_equal ~cmp:MLBDD.equal b1 b3
+        );
     ]
 
 let weakhash_tests = "weak hash tests" >::: [

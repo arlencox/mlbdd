@@ -161,7 +161,7 @@ type support
   [init ~cache:n ()] creates a new BDD manager with a cache of size [n].
 
   Larger caches require fewer growth steps, where the cache must be resized and
-   memory must be realllocated.  *)
+  memory must be realllocated. *)
 val init : ?cache:int -> unit -> man
 
 (** [clear man] clears all of the caches in the BDD.  BDDs are still accessible
@@ -173,7 +173,8 @@ val clear : man -> unit
 (** [support t] computes the supporting variable set for the bdd [t]. *)
 val support : t -> support
 
-(** [string_of_support support] creates a string representation of a supporting set. *)
+(** [string_of_support support] creates a string representation of a supporting
+    set. *)
 val string_of_support : support -> string
 
 (** {3 Queries} *)
@@ -211,36 +212,54 @@ val dand : t -> t -> t
 val dor : t -> t -> t
 
 
-(** [dor t1 t2] returns the BDD representing the negation of the conjunction of [t1] and [t2]. *)
+(** [dor t1 t2] returns the BDD representing the negation of the conjunction of
+    [t1] and [t2]. *)
 val nand : t -> t -> t
 
-(** [dxor t1 t2] returns the BDD representing the exclusive-or of [t1] and [t2]. *)
+(** [dxor t1 t2] returns the BDD representing the exclusive-or of [t1] and
+    [t2]. *)
 val xor : t -> t -> t
 
-(** [nxor t1 t2] returns the BDD representing the negation of the exclusive-or of [t1] and [t2]. *)
+(** [nxor t1 t2] returns the BDD representing the negation of the exclusive-or
+    of [t1] and [t2]. *)
 val nxor : t -> t -> t
 
-(** [eq t1 t2] returns the BDD that is {i true} whenever [t1] is equal to [t2] (equivalent to [nxor]) *)
+(** [eq t1 t2] returns the BDD that is {i true} whenever [t1] is equal to [t2]
+    (equivalent to [nxor]) *)
 val eq : t -> t -> t
 
-(** [exists support t] returns the BDD where each variable in [support] has been existentially quantified in [t] *)
+(** [ite f v t] returns the bdd that is [f] whenever the variable [v] is false
+    and [t] whenever the variable [v] is true *)
+val ite : t -> var -> t -> t
+
+(** [exists support t] returns the BDD where each variable in [support] has
+    been existentially quantified in [t] *)
 val exists : support -> t -> t
 
-(** [forall support t] returns the BDD where each variable in [support] has been universally quantified in [t] *)
+(** [forall support t] returns the BDD where each variable in [support] has
+    been universally quantified in [t] *)
 val forall : support -> t -> t
 
-(** [cofactor v t] returns the negative and positive cofactor of [t] with respect to variable [v] *)
+(** [cofactor v t] returns the negative and positive cofactor of [t] with
+    respect to variable [v] *)
 val cofactor : var -> t -> t * t
+
+(** [permute p t] permutes the variables in the BDD [t] using the permutation
+    array [p].  At each variable's index in [p] is the new index for that
+    variable. *)
+val permute : var array -> t -> t
 
 (** {3 Iteration} *)
 
 type 'a e =
-  | False
-  | True
-  | Not of 'a
-  | If of 'a * var * 'a
+  | False               (** the false BDD *)
+  | True                (** the true BDD *)
+  | Not of 'a           (** not result *)
+  | If of 'a * var * 'a (** result from false branch, variable, result from
+                            true branch *)
 
-(** [fold f t] folds over the BDD's structure calling [f] on each node in the BDD. *)
+(** [fold f t] folds over the BDD's structure calling [f] on each node in the
+    BDD. *)
 val fold : ('r e -> 'r) -> t -> 'r
 
 (** {3 Satisfiability and Primality Queries} *)

@@ -204,6 +204,14 @@ let xor t1 t2 =
 
 let eq = nxor
 
+let imply a b =
+  dor (dnot a) b
+
+let rec ite f var t =
+  let v = ithvar f.man var in
+  dand (imply v t) (imply (dnot v) f)
+
+
 let cofactor v t =
   let visited = Hashtbl.create ((IfHashCons.length t.man.bdd_hc)*3/2) in
   let rec cofactor = function
@@ -427,3 +435,15 @@ let fold f t =
     end
   in
   fold t.node
+
+let permute perm t =
+  let man = t.man in
+  fold (function
+      | False -> dfalse man
+      | True -> dtrue man
+      | Not e -> dnot e
+      | If (l, v, r) ->
+        ite l perm.(v) r
+    ) t
+
+

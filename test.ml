@@ -293,6 +293,17 @@ let bdd_tests = "MLBDD tests" >::: [
           let b3 = MLBDD.permute [| 1; 0 |] b2 in
           assert_equal ~cmp:MLBDD.equal b1 b3
         );
+      "support extract" >:: (fun ctx ->
+          let man = MLBDD.init () in
+          let a = MLBDD.ithvar man 0 in
+          let na = MLBDD.dnot a in
+          let b = MLBDD.ithvar man 1 in
+          let b1 = MLBDD.dor na b in
+          let supp = MLBDD.support b1 in
+          let supp = MLBDD.list_of_support supp in
+          assert_bool "supp = [1; 0]" (supp = [0; 1])
+        );
+
     ]
 
 let weakhash_tests = "weak hash tests" >::: [

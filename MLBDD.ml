@@ -246,7 +246,7 @@ let cofactor v t =
 
 module Int = struct
   type t = int
-  let compare a b = b - a
+  let compare a b = a - b
 end
 
 module ISet = Set.Make(Int)

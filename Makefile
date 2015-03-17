@@ -1,4 +1,4 @@
-.PHONY: all clean install check
+.PHONY: all clean install uninstall reinstall check 
 
 all: MLBDD.cmxa MLBDD.cma
 
@@ -40,7 +40,14 @@ clean:
 install:
 	ocamlfind install mlbdd META MLBDD.cmxa MLBDD.cma MLBDD.cmi MLBDD.a MLBDD.o MLBDD.cmx MLBDD.cmo WeakHash.cmi WeakHash.cmo WeakHash.cmx WeakHash.o
 
+uninstall:
+	ocamlfind remove mlbdd
+
+reinstall: uninstall install
+
+
 # Test requires installation
 
 check:
 	ocamlbuild -use-ocamlfind -no-hygiene test.byte
+	./test.byte

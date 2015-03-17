@@ -173,6 +173,10 @@ val clear : man -> unit
 (** [support t] computes the supporting variable set for the bdd [t]. *)
 val support : t -> support
 
+(** [list_of_support support] converts a support structure [support] into
+    a list of variable indices that constitute the support *)
+val list_of_support : support -> int list
+
 (** [string_of_support support] creates a string representation of a supporting
     set. *)
 val string_of_support : support -> string
@@ -231,6 +235,9 @@ val eq : t -> t -> t
 (** [ite f v t] returns the bdd that is [f] whenever the variable [v] is false
     and [t] whenever the variable [v] is true *)
 val ite : t -> var -> t -> t
+
+(** [imply t1 t2] returns the BDD that represents [t1] implies [t2] *)
+val imply : t -> t -> t
 
 (** [exists support t] returns the BDD where each variable in [support] has
     been existentially quantified in [t] *)

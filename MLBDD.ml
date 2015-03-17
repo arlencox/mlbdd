@@ -273,13 +273,20 @@ let support t =
   itersupport t.node;
   !support
 
-
 let rec string_of_support s =
-  ISet.fold (fun i s ->
-      if s = "" then
-        (string_of_int i)
+  let b = Buffer.create 80 in
+  let first = ref true in
+  ISet.iter (fun i ->
+      if !first then
+        first := false
       else
-        (string_of_int i)^","^s) s ""
+        Buffer.add_string b ",";
+      Buffer.add_string b (string_of_int i)
+    ) s;
+  Buffer.contents b
+
+let list_of_support s =
+  ISet.elements s
 
 let exists support t =
   let man = t.man in

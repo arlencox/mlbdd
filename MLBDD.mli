@@ -170,6 +170,9 @@ val init : ?cache:int -> unit -> man
     allocate a new manager than to clear the cache of an existing one. *)
 val clear : man -> unit
 
+(** [manager t] retrieves the manager for the BDD expression [t]. *)
+val manager : t -> man
+
 (** [support t] computes the supporting variable set for the bdd [t]. *)
 val support : t -> support
 

@@ -49,6 +49,8 @@ type t = {
   node: cnode;
 }
 
+let manager t = t.man
+
 let equal t1 t2 =
   t1.man == t2.man &&
   match t1.node, t2.node with
@@ -450,7 +452,7 @@ let permute perm t =
       | True -> dtrue man
       | Not e -> dnot e
       | If (l, v, r) ->
-        ite l perm.(v) r
+        ite l (if v < Array.length perm then perm.(v) else v) r
     ) t
 
 

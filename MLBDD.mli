@@ -259,6 +259,10 @@ val cofactor : var -> t -> t * t
     variable. *)
 val permute : var array -> t -> t
 
+(** [permute f t] permutes teh variables in the BDD [t] using the permutation
+    function [f].  The function returns a new index for each index. *)
+val permutef : (var -> var) -> t -> t
+
 (** {3 Iteration} *)
 
 type 'a e =

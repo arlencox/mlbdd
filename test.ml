@@ -303,6 +303,18 @@ let bdd_tests = "MLBDD tests" >::: [
           let supp = MLBDD.list_of_support supp in
           assert_bool "supp = [1; 0]" (supp = [0; 1])
         );
+      "permutef" >:: (fun ctx ->
+          let man = MLBDD.init () in
+          let a = MLBDD.ithvar man 0 in
+          let na = MLBDD.dnot a in
+          let b = MLBDD.ithvar man 1 in
+          let nb = MLBDD.dnot b in
+          let b1 = MLBDD.dor na b in
+          let b2 = MLBDD.dor a nb in
+          assert_equal ~cmp:(fun a b -> not (MLBDD.equal a b)) b1 b2;
+          let b3 = MLBDD.permutef (fun i -> 1 - i) b2 in
+          assert_equal ~cmp:MLBDD.equal b1 b3
+        );
 
     ]
 

@@ -455,4 +455,14 @@ let permute perm t =
         ite l (if v < Array.length perm then perm.(v) else v) r
     ) t
 
+let permutef f t =
+  let man = t.man in
+  fold (function
+      | False -> dfalse man
+      | True -> dtrue man
+      | Not e -> dnot e
+      | If (l, v, r) ->
+        ite l (f v) r
+    ) t
+
 

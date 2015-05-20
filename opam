@@ -1,4 +1,6 @@
 opam-version: "1.2"
+name: "mlbdd"
+version: "0.3"
 maintainer: "Arlen Cox <arlencox@gmail.com>"
 authors: "Arlen Cox <arlencox@gmail.com>"
 homepage: "https://github.com/arlencox/mlbdd"

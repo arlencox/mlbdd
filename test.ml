@@ -64,6 +64,22 @@ let bdd_tests = "MLBDD tests" >::: [
           let t2 = MLBDD.eq v0 v2 in
           assert_equal ~cmp:MLBDD.equal t1 t2
         );
+      "exists2" >:: (fun ctx ->
+          let man = MLBDD.init ~cache:100 () in
+          let v2 = MLBDD.ithvar man 2 in
+          let v4 = MLBDD.ithvar man 4 in
+          let v5 = MLBDD.ithvar man 5 in
+          let v6 = MLBDD.ithvar man 6 in
+          let t1 = MLBDD.eq v4 v6 in
+          let t2 = MLBDD.imply v4 (MLBDD.dor v5 v2) in
+          let t12 = MLBDD.dand t1 t2 in
+          let t3 = MLBDD.dand v4 v5 in
+          let t4 = MLBDD.exists (MLBDD.support t3) t12 in
+          let t5 = MLBDD.exists (MLBDD.support v4) t12 in
+          let t6 = MLBDD.exists (MLBDD.support v5) t5 in
+          assert_equal ~cmp:MLBDD.equal t6 t4
+        );
+
       "and_project" >:: (fun ctx ->
           let man = MLBDD.init ~cache:100 () in
           let v0 = MLBDD.ithvar man 0 in
@@ -90,7 +106,7 @@ let bdd_tests = "MLBDD tests" >::: [
           let pq = MLBDD.xor p q in
           let supp = MLBDD.support pq in
           let s = MLBDD.string_of_support supp in
-          assert_equal s "0,1"
+          assert_equal s "1,0"
         );
       "bddstring1" >:: (fun ctx ->
           let man = MLBDD.init ~cache:100 () in
@@ -301,7 +317,7 @@ let bdd_tests = "MLBDD tests" >::: [
           let b1 = MLBDD.dor na b in
           let supp = MLBDD.support b1 in
           let supp = MLBDD.list_of_support supp in
-          assert_bool "supp = [1; 0]" (supp = [0; 1])
+          assert_bool "supp = [1; 0]" (supp = [1; 0])
         );
       "permutef" >:: (fun ctx ->
           let man = MLBDD.init () in

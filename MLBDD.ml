@@ -248,7 +248,7 @@ let cofactor v t =
 
 module Int = struct
   type t = int
-  let compare a b = a - b
+  let compare a b = b - a
 end
 
 module ISet = Set.Make(Int)
@@ -289,6 +289,9 @@ let rec string_of_support s =
 
 let list_of_support s =
   ISet.elements s
+
+let support_of_list l =
+  List.fold_left (fun s e -> ISet.add e s) ISet.empty l
 
 let exists support t =
   let man = t.man in

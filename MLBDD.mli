@@ -180,6 +180,10 @@ val support : t -> support
     a list of variable indices that constitute the support *)
 val list_of_support : support -> int list
 
+(** [support_of_list l] converts a list of variables [l] into a support structure
+    that can be used for quantification *)
+val support_of_list : int list -> support
+
 (** [string_of_support support] creates a string representation of a supporting
     set. *)
 val string_of_support : support -> string

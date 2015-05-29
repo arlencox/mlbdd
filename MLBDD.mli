@@ -161,7 +161,7 @@ type support
   [init ~cache:n ()] creates a new BDD manager with a cache of size [n].
 
   Larger caches require fewer growth steps, where the cache must be resized and
-  memory must be realllocated. *)
+  memory must be reallocated. *)
 val init : ?cache:int -> unit -> man
 
 (** [clear man] clears all of the caches in the BDD.  BDDs are still accessible
@@ -177,7 +177,7 @@ val manager : t -> man
 val support : t -> support
 
 (** [list_of_support support] converts a support structure [support] into
-    a list of variable indices that constitute the support *)
+    a list of variable indexes that constitute the support *)
 val list_of_support : support -> int list
 
 (** [support_of_list l] converts a list of variables [l] into a support structure
@@ -263,7 +263,7 @@ val cofactor : var -> t -> t * t
     variable. *)
 val permute : var array -> t -> t
 
-(** [permute f t] permutes teh variables in the BDD [t] using the permutation
+(** [permute f t] permutes the variables in the BDD [t] using the permutation
     function [f].  The function returns a new index for each index. *)
 val permutef : (var -> var) -> t -> t
 

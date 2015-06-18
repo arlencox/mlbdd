@@ -1,6 +1,6 @@
 name="mlbdd"
 description="OCaml native binary decision diagrams"
-version="0.4"
+version="0.5"
 depends=""
 archive(byte)="MLBDD.cma"
 archive(native)="MLBDD.cmxa"

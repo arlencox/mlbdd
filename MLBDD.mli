@@ -333,3 +333,70 @@ val to_stringb : t -> string
 
 
 
+module Raw : sig
+    type var = int
+    type t
+    type man
+    type support
+
+    type 'a e =
+      | False
+      | True
+      | Not of 'a
+      | If of 'a * var * 'a
+
+    val clear : man -> unit
+    val init : ?cache:int -> unit -> man
+    val equal : t -> t -> bool
+    val dtrue : t
+    val dfalse : t
+    val is_true : t -> bool
+    val is_false : t -> bool
+    val to_string : t -> string
+    val to_stringb : t -> string
+    val ithvar : man -> var -> t
+    val dnot : t -> t
+    val dand : man -> t -> t -> t
+    val dor : man -> t -> t -> t
+    val nand : man -> t -> t -> t
+    val imply : man -> t -> t -> t
+    val eq : man -> t -> t -> t
+    val nxor : man -> t -> t -> t
+    val xor : man -> t -> t -> t
+    val ite : man -> t -> var -> t -> t
+    val cofactor : man -> var -> t -> t * t
+    val support : man -> t -> support
+    val string_of_support : support -> string
+    val list_of_support : support -> var list
+    val support_of_list : var list -> support
+    val exists_sorted : man -> var list -> t -> t
+    val forall_sorted : man -> int list -> t -> t
+    val exists : man -> var list -> t -> t
+    val forall : man -> var list -> t -> t
+    val sat : t -> (bool * var) list option
+    val itersat : man -> ((bool * var) list -> unit) -> t -> unit
+    val allsat : man -> t -> (bool * var) list list
+    val iterprime : man -> ((bool * var) list -> unit) -> t -> unit
+    val allprime : man -> t -> (bool * var) list list
+    val prime : man -> t -> (bool * var) list option
+    val fold : man -> ('a e -> 'a) -> t -> 'a
+    val permute : man -> var array -> t -> t
+    val permutef : man -> (var -> var) -> t -> t
+  end
+
+module type WHS =
+  sig
+    type key
+    type 'a t
+    val create : int -> 'a t
+    val replace : 'a t -> key -> 'a -> unit
+    val remove : 'a t -> key -> unit
+    val find : 'a t -> key -> 'a
+    val mem : 'a t -> key -> bool
+    val iter : (key -> 'a -> unit) -> 'a t -> unit
+    val clear : 'a t -> unit
+    val length : 'a t -> int
+  end
+
+module WeakHash :
+  functor (H : Hashtbl.HashedType) -> WHS with type key = H.t

@@ -79,6 +79,49 @@ let bdd_tests = "MLBDD tests" >::: [
           let t6 = MLBDD.exists (MLBDD.support v5) t5 in
           assert_equal ~cmp:MLBDD.equal t6 t4
         );
+      "exists3" >:: (fun ctx ->
+          let man = MLBDD.init ~cache:100 () in
+          let v2 = MLBDD.ithvar man 2 in
+          let v4 = MLBDD.ithvar man 4 in
+          let v5 = MLBDD.ithvar man 5 in
+          let v6 = MLBDD.ithvar man 6 in
+          let t1 = MLBDD.eq v4 v6 in
+          let t2 = MLBDD.imply v4 (MLBDD.dand v5 v2) in
+          let t12 = MLBDD.dand t1 t2 in
+          let t3 = MLBDD.dand v4 v5 in
+          let t4 = MLBDD.exists (MLBDD.support t3) t12 in
+          let t5 = MLBDD.exists (MLBDD.support v4) t12 in
+          let t6 = MLBDD.exists (MLBDD.support v5) t5 in
+          let t7 = MLBDD.imply v6 v2 in
+          assert_equal ~cmp:MLBDD.equal t6 t4;
+          assert_equal ~cmp:MLBDD.equal t6 t7
+        );
+      "exists3_raw" >:: (fun ctx ->
+          let man = MLBDD.Raw.init ~cache:100 () in
+          let v2 = MLBDD.Raw.ithvar man 2 in
+          let v4 = MLBDD.Raw.ithvar man 4 in
+          let v5 = MLBDD.Raw.ithvar man 5 in
+          let v6 = MLBDD.Raw.ithvar man 6 in
+          let t1 = MLBDD.Raw.eq man v4 v6 in
+          let t2 = MLBDD.Raw.imply man v4 (MLBDD.Raw.dand man v5 v2) in
+          let t12 = MLBDD.Raw.dand man t1 t2 in
+          let t4 = MLBDD.Raw.exists man [4; 5] t12 in
+          let t5 = MLBDD.Raw.exists man [4] t12 in
+          let t6 = MLBDD.Raw.exists man [5] t5 in
+          let t7 = MLBDD.Raw.imply man v6 v2 in
+          assert_equal ~cmp:MLBDD.Raw.equal t6 t4;
+          assert_equal ~cmp:MLBDD.Raw.equal t6 t7
+        );
+      "exists_imp" >:: (fun ctx ->
+          let man = MLBDD.init ~cache:100 () in
+          let v0 = MLBDD.ithvar man 0 in
+          let v1 = MLBDD.ithvar man 1 in
+          let v2 = MLBDD.ithvar man 2 in
+          let t1 = MLBDD.dand (MLBDD.imply v0 v1) (MLBDD.imply v1 v2) in
+          let t2 = MLBDD.exists (MLBDD.support v1) t1 in
+          let t3 = MLBDD.imply v0 v2 in
+          assert_equal ~cmp:MLBDD.equal t2 t3
+        );
 
       "and_project" >:: (fun ctx ->
           let man = MLBDD.init ~cache:100 () in
@@ -336,7 +379,7 @@ let bdd_tests = "MLBDD tests" >::: [
 
 let weakhash_tests = "weak hash tests" >::: [
       "hash_add" >:: (fun ctx ->
-          let module H = WeakHash.Make(struct
+          let module H = MLBDD.WeakHash(struct
               type t = int
               let equal = (=)
               let hash = Hashtbl.hash

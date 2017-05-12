@@ -199,6 +199,11 @@ val is_false : t -> bool
 (** [equal t1 t2] returns true if the two BDDs represent the same function. *)
 val equal : t -> t -> bool
 
+(** [id t] returns a unique indentifier for a particular node.  This can also
+    be used as a hash code *)
+val id : t -> int
+
+
 (** {3 Constructors} *)
 
 
@@ -269,12 +274,26 @@ val permutef : (var -> var) -> t -> t
 
 (** {3 Iteration} *)
 
+(** type for accessing BDD nodes as they are used *)
 type 'a e =
   | False               (** the false BDD *)
   | True                (** the true BDD *)
   | Not of 'a           (** not result *)
   | If of 'a * var * 'a (** result from false branch, variable, result from
                             true branch *)
+
+(** [inspect t] returns the top node as an iteration expression *)
+val inspect : t -> t e
+
+(** type for accessing BDD nodes as traditional BDDS *)
+type 'a b =
+  | BFalse               (** the false BDD *)
+  | BTrue                (** the true BDD *)
+  | BIf of 'a * var * 'a (** result from false branch, variable, result from
+                             true branch *)
+
+(** [inspectb t] returns the top node as an traditional BDD node *)
+val inspectb : t -> t b
 
 (** [fold f t] folds over the BDD's structure calling [f] on each node in the
     BDD. *)
@@ -345,6 +364,11 @@ module Raw : sig
       | Not of 'a
       | If of 'a * var * 'a
 
+    type 'a b =
+      | BFalse
+      | BTrue
+      | BIf of 'a * var * 'a
+
     val clear : man -> unit
     val init : ?cache:int -> unit -> man
     val equal : t -> t -> bool
@@ -352,6 +376,7 @@ module Raw : sig
     val dfalse : t
     val is_true : t -> bool
     val is_false : t -> bool
+    val id : t -> int
     val to_string : t -> string
     val to_stringb : t -> string
     val ithvar : man -> var -> t
@@ -379,6 +404,8 @@ module Raw : sig
     val iterprime : man -> ((bool * var) list -> unit) -> t -> unit
     val allprime : man -> t -> (bool * var) list list
     val prime : man -> t -> (bool * var) list option
+    val inspect : t -> t e
+    val inspectb : t -> t b
     val fold : man -> ('a e -> 'a) -> t -> 'a
     val permute : man -> var array -> t -> t
     val permutef : man -> (var -> var) -> t -> t

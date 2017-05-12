@@ -187,6 +187,12 @@ module Raw = struct
 
   type t = cnode
 
+  let id = function
+    | (NIf (e0,v,e1,id), true) -> id + 1
+    | (NIf (e0,v,e1,id), false) -> id
+    | (NFalse, true) -> -1
+    | (NFalse, false) -> -2
+
   let equal t1 t2 =
     match t1, t2 with
     | (NFalse, a),(NFalse, b) when a == b -> true
@@ -550,6 +556,25 @@ module Raw = struct
     | Not of 'a
     | If of 'a * var * 'a
 
+  let inspect = function
+    | (NFalse, false) -> False
+    | (NFalse, true) -> True
+    | (_, true) as t -> Not (dnot t)
+    | (NIf (e0, v, e1, _), false) ->
+      If ((e0, false), v, e1)
+
+  type 'a b =
+    | BFalse
+    | BTrue
+    | BIf of 'a * var * 'a
+
+  let inspectb = function
+    | (NFalse, false) -> BFalse
+    | (NFalse, true) -> BTrue
+    | (NIf (e0, v, e1, _), true) ->
+      BIf ((e0, true), v, (dnot e1))
+    | (NIf (e0, v, e1, _), false) ->
+      BIf ((e0, false), v, e1)
 
   let fold man f t =
     let visited = Hashtbl.create ((IfHashCons.length man.bdd_hc)*3/2) in
@@ -738,6 +763,26 @@ type 'a e = 'a Raw.e =
   | Not of 'a
   | If of 'a * var * 'a
 
+type 'a b = 'a Raw.b =
+  | BFalse
+  | BTrue
+  | BIf of 'a * var * 'a
+
+let id t =
+  Raw.id t.node
+
+let inspect t =
+  match Raw.inspect t.node with
+  | False -> False
+  | True -> True
+  | Not a -> Not {t with node = a}
+  | If (e0, v, e1) -> If ({t with node = e0}, v, {t with node = e1}) 
+
+let inspectb t =
+  match Raw.inspectb t.node with
+  | BFalse -> BFalse
+  | BTrue -> BTrue
+  | BIf (e0, v, e1) -> BIf ({t with node = e0}, v, {t with node = e1}) 
 
 let fold f t =
   Raw.fold t.man f t.node

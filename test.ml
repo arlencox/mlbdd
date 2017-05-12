@@ -374,7 +374,84 @@ let bdd_tests = "MLBDD tests" >::: [
           let b3 = MLBDD.permutef (fun i -> 1 - i) b2 in
           assert_equal ~cmp:MLBDD.equal b1 b3
         );
-
+      "id_test" >:: (fun ctx ->
+          let man = MLBDD.init () in
+          let a = MLBDD.ithvar man 0 in
+          assert_equal ~cmp:(fun a b -> not (a = b)) (MLBDD.id a) (MLBDD.id (MLBDD.dtrue man));
+          assert_equal ~cmp:(fun a b -> not (a = b)) (MLBDD.id a) (MLBDD.id (MLBDD.dfalse man));
+          assert_equal ~cmp:(fun a b -> not (a = b)) (MLBDD.id (MLBDD.dtrue man)) (MLBDD.id (MLBDD.dfalse man))
+        );
+      "inspect_test_pos" >:: (fun ctx ->
+          let man = MLBDD.init () in
+          let a = MLBDD.ithvar man 0 in
+          match MLBDD.inspect a with
+          | MLBDD.If (e0, v, e1) ->
+            begin match MLBDD.inspect e0 with
+              | MLBDD.False -> ()
+              | _ -> assert_bool "basic inspect false is not false" false
+            end;
+            begin match MLBDD.inspect e1 with
+              | MLBDD.True -> ()
+              | _ -> assert_bool "basic inspect true is not true" false
+            end
+          | _ ->
+            assert_bool "basic inspect var is not an if" false
+        );
+      "inspect_test_neg" >:: (fun ctx ->
+          let man = MLBDD.init () in
+          let a = MLBDD.ithvar man 0 in
+          let a = MLBDD.dnot a in
+          match MLBDD.inspect a with
+          | MLBDD.Not e ->
+            begin match MLBDD.inspect e with
+              | MLBDD.If (e0, v, e1) ->
+                begin match MLBDD.inspect e0 with
+                  | MLBDD.False -> ()
+                  | _ -> assert_bool "basic inspect false is not false" false
+                end;
+                begin match MLBDD.inspect e1 with
+                  | MLBDD.True -> ()
+                  | _ -> assert_bool "basic inspect true is not true" false
+                end
+              | _ ->
+                assert_bool "basic inspect var is not an if" false
+            end
+          | _ ->
+            assert_bool "inspect not is not a not" false
+        );
+      "inspectb_test_pos" >:: (fun ctx ->
+          let man = MLBDD.init () in
+          let a = MLBDD.ithvar man 0 in
+          match MLBDD.inspectb a with
+          | MLBDD.BIf (e0, v, e1) ->
+            begin match MLBDD.inspectb e0 with
+              | MLBDD.BFalse -> ()
+              | _ -> assert_bool "basic inspectb false is not false" false
+            end;
+            begin match MLBDD.inspectb e1 with
+              | MLBDD.BTrue -> ()
+              | _ -> assert_bool "basic inspectb true is not true" false
+            end
+          | _ ->
+            assert_bool "basic inspectb var is not an if" false
+        );
+      "inspectb_test_pos" >:: (fun ctx ->
+          let man = MLBDD.init () in
+          let a = MLBDD.ithvar man 0 in
+          let a = MLBDD.dnot a in
+          match MLBDD.inspectb a with
+          | MLBDD.BIf (e0, v, e1) ->
+            begin match MLBDD.inspectb e0 with
+              | MLBDD.BTrue -> ()
+              | _ -> assert_bool "basic inspectb false is not true" false
+            end;
+            begin match MLBDD.inspectb e1 with
+              | MLBDD.BFalse -> ()
+              | _ -> assert_bool "basic inspectb true is not false" false
+            end
+          | _ ->
+            assert_bool "basic inspectb var is not an if" false
+        );
     ]
 
 let weakhash_tests = "weak hash tests" >::: [

@@ -313,6 +313,24 @@ val fold : ('r e -> 'r) -> t -> 'r
     BDD.  Follows the traditional BDD structure. *)
 val foldb : ('r b -> 'r) -> t -> 'r
 
+(** ['r fold] is a type that keeps track of fold history.  This allows folding
+    over multiple BDDs without revisiting nodes. *)
+type 'r fold
+
+(** [fold_init man] creates a new hold history tracker.  Use this along with
+    the [fold_cont] or [foldb_cont] operations to perform folds using a shared
+    history. *)
+val fold_init : man -> 'r fold
+
+(** [fold_cont hist f t] continues a fold with an existing history [hist].  Use
+    [fold_init man] to create a new history. *)
+val fold_cont : 'r fold -> ('r e -> 'r) -> t -> 'r
+
+(** [foldb_cont hist f t] continues a fold with an existing history [hist].
+    Use [fold_init man] to create a new history.  Fold uses the traditional BDD
+    structure*)
+val foldb_cont : 'r fold -> ('r b -> 'r) -> t -> 'r
+
 (** {3 Satisfiability and Primality Queries} *)
 
 (** [sat t] returns [None] if unsatisfiable, otherwise it returns a list of
@@ -370,6 +388,7 @@ module Raw : sig
     type t
     type man
     type support
+    type 'a fold
 
     type 'a e =
       | False
@@ -421,6 +440,9 @@ module Raw : sig
     val prime : man -> t -> (bool * var) list option
     val inspect : t -> t e
     val inspectb : t -> t b
+    val fold_init : man -> 'a fold
+    val fold_cont : 'a fold -> man -> ('a e -> 'a) -> t -> 'a
+    val foldb_cont : 'a fold -> man -> ('a b -> 'a) -> t -> 'a
     val fold : man -> ('a e -> 'a) -> t -> 'a
     val foldb : man -> ('a b -> 'a) -> t -> 'a
     val permute : man -> var array -> t -> t

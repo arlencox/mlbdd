@@ -723,55 +723,61 @@ module Raw = struct
     | (NIf (e0, v, e1, _), false) ->
       BIf ((e0, false), v, e1)
 
+  type 'a fold = (int, 'a) Hashtbl.t
+
+  let fold_init man : 'a fold =
+      Hashtbl.create ((IfHashCons.length man.bdd_hc)*3/2)
+
+
+  let rec fold_cont visited man f node =
+    let id = ident_cnode node in
+    begin try
+        Hashtbl.find visited id
+      with Not_found ->
+        let res = match node with
+          | (NFalse, false) ->
+            f False
+          | (NFalse, true) ->
+            f True
+          | (NIf(el, v, er, _), pol) ->
+            let rl = fold_cont visited man f (el,false) in
+            let rr = fold_cont visited man f er in
+            let r = f (If (rl, v, rr)) in
+            if pol then
+              f (Not r)
+            else
+              r
+        in
+        Hashtbl.replace visited id res;
+        res
+    end
+
   let fold man f t =
-    let visited = Hashtbl.create ((IfHashCons.length man.bdd_hc)*3/2) in
-    let rec fold visited man f node =
-      let id = ident_cnode node in
-      begin try
-          Hashtbl.find visited id
-        with Not_found ->
-          let res = match node with
-            | (NFalse, false) ->
-              f False
-            | (NFalse, true) ->
-              f True
-            | (NIf(el, v, er, _), pol) ->
-              let rl = fold visited man f (el,false) in
-              let rr = fold visited man f er in
-              let r = f (If (rl, v, rr)) in
-              if pol then
-                f (Not r)
-              else
-                r
-          in
-          Hashtbl.replace visited id res;
-          res
-      end
-    in
-    fold visited man f t
+    let visited = fold_init man in
+    fold_cont visited man f t
+
+  let rec foldb_cont visited man f node =
+    let id = ident_cnode node in
+    begin try
+        Hashtbl.find visited id
+      with Not_found ->
+        let res = match node with
+          | (NFalse, false) ->
+            f BFalse
+          | (NFalse, true) ->
+            f BTrue
+          | (NIf(el, v, er, _), pol) ->
+            let rl = foldb_cont visited man f (el, pol) in
+            let rr = foldb_cont visited man f (if pol then dnot er else er) in
+            f (BIf (rl, v, rr))
+        in
+        Hashtbl.replace visited id res;
+        res
+    end
 
   let foldb man f t =
-    let visited = Hashtbl.create ((IfHashCons.length man.bdd_hc)*3/2) in
-    let rec foldb visited man f node =
-      let id = ident_cnode node in
-      begin try
-          Hashtbl.find visited id
-        with Not_found ->
-          let res = match node with
-            | (NFalse, false) ->
-              f BFalse
-            | (NFalse, true) ->
-              f BTrue
-            | (NIf(el, v, er, _), pol) ->
-              let rl = foldb visited man f (el, pol) in
-              let rr = foldb visited man f (if pol then dnot er else er) in
-              f (BIf (rl, v, rr))
-          in
-          Hashtbl.replace visited id res;
-          res
-      end
-    in
-    foldb visited man f t
+    let visited = fold_init man in
+    foldb_cont visited man f t
 
   let permute man perm t =
     fold man (function
@@ -958,6 +964,17 @@ let inspectb t =
   | BFalse -> BFalse
   | BTrue -> BTrue
   | BIf (e0, v, e1) -> BIf ({t with node = e0}, v, {t with node = e1}) 
+
+type 'a fold = 'a Raw.fold
+
+let fold_init man =
+  Raw.fold_init man
+
+let fold_cont visited f t =
+  Raw.fold_cont visited t.man f t.node
+
+let foldb_cont visited f t =
+  Raw.foldb_cont visited t.man f t.node
 
 let fold f t =
   Raw.fold t.man f t.node

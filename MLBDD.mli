@@ -170,6 +170,12 @@ val init : ?cache:int -> unit -> man
     allocate a new manager than to clear the cache of an existing one. *)
 val clear : man -> unit
 
+(** [flush man] clears the input caches in the BDD.  BDDs are still accessible
+    and extensible with full canonicity.  This may decrease allocation
+    performance because extra BDD nodes may be allocated and then immediately
+    thrown away. *)
+val flush : man -> unit
+
 (** [manager t] retrieves the manager for the BDD expression [t]. *)
 val manager : t -> man
 
@@ -377,6 +383,7 @@ module Raw : sig
       | BIf of 'a * var * 'a
 
     val clear : man -> unit
+    val flush : man -> unit
     val init : ?cache:int -> unit -> man
     val equal : t -> t -> bool
     val dtrue : t

@@ -173,16 +173,24 @@ module Raw = struct
     bdd_hc : node IfHashCons.t;
     bdd_hc_stamp : int ref;
     and_cache : (int * int,cnode) Hashtbl.t;
+    xor_cache : (int * int,cnode) Hashtbl.t;
   }
 
   let clear ctx = 
     IfHashCons.clear ctx.bdd_hc;
-    Hashtbl.clear ctx.and_cache
+    Hashtbl.clear ctx.and_cache;
+    Hashtbl.clear ctx.xor_cache
+
+  let flush ctx =
+    Hashtbl.clear ctx.and_cache;
+    Hashtbl.clear ctx.xor_cache
+
 
   let init ?cache:(init=1002403) () = {
     bdd_hc = IfHashCons.create init;
     bdd_hc_stamp = ref 2;
     and_cache = Hashtbl.create init;
+    xor_cache = Hashtbl.create init;
   }
 
   type t = cnode
@@ -224,7 +232,7 @@ module Raw = struct
     (node, not inv)
 
       (* raw, internal mkif function *)
-  let mkif_int man e0 v e1 =
+  let mkif_int man (e0: cnode) v (e1: cnode) : cnode =
     (* normalize to ensure that complement is only on 1 edge *)
     let (inverted,e0,e1) = match e0 with
       | (node, true) ->
@@ -316,6 +324,43 @@ module Raw = struct
           f
       end
 
+  let rec xor man t1 t2 =
+    let ida = ident_cnode t1 in
+    let idb = ident_cnode t2 in
+    if ida == idb then
+      (NFalse, false)
+    else if ida == ident_cnode (dnot t2) then
+      (NFalse, true)
+    else match t1, t2 with
+      | (NFalse, false), other
+      | other, (NFalse, false) ->
+        other
+      | (NFalse, true), other
+      | other, (NFalse, true) ->
+        dnot other
+      | (NIf(e0a, va, e1a, _),inva), (NIf(e0b, vb, e1b, _),invb) ->
+        let key = if ida < idb then (ida, idb) else (idb, ida) in
+        try
+          Hashtbl.find man.xor_cache key
+        with Not_found ->
+          let e0a = (e0a,inva) in
+          let e1a = if inva then not_cnode e1a else e1a in
+          let e0b = (e0b,invb) in
+          let e1b = if invb then not_cnode e1b else e1b in
+          let c = vb - va in
+          let f =
+            if c = 0 then
+              mkif_int man (xor man e0a e0b) va (xor man e1a e1b)
+            else if c < 0 then
+              mkif_int man (xor man e0b t1) vb (xor man e1b t1)
+            else
+              mkif_int man (xor man e0a t2) va (xor man e1a t2)
+          in
+          Hashtbl.replace man.xor_cache key f;
+          f
+
+     
+
   let to_stringb t =
     to_stringb_int false t
 
@@ -329,16 +374,116 @@ module Raw = struct
     dor man (dnot a) b
 
   let eq man a b =
-    dand man (imply man a b) (imply man b a)
+    dnot (xor man a b)
 
   let nxor = eq
+  (*let eq man a b =*)
+    (*dand man (imply man a b) (imply man b a)*)
 
-  let xor man a b = dnot (nxor man a b)
+  (*let nxor = eq*)
+
+  (*let xor man a b = dnot (nxor man a b)*)
 
 
   let rec ite man f var t =
     let v = ithvar man var in
     dand man (imply man v t) (imply man (dnot v) f)
+
+  (*let rec ite man f g h =
+    let idf = ident_cnode f in
+    let idg = ident_cnode g in
+    let idng = ident_cnode (dnot g) in
+    let idh = ident_cnode h in
+    let idnh = ident_cnode (dnot h) in
+    match idf, idg, idh with
+    | 1, _, _ -> g
+    | 0, _, _ -> h
+    | _, 1, _
+    | idf, idg, _ when idf == idg ->
+      if idh == 0 then
+        f
+      else
+        dand man (dnot f) (dnot h)
+    | _, 0, _
+    | idf, idg, _ when idf == (idg lxor 1) ->
+
+
+    
+
+    if idf == 1 then
+      g
+    else if idf == 0 then
+      h
+    else if g == 1 || idf == idg then
+      if idh == 0 then
+        f
+      else
+        dand man (dnot f) (dnot h)
+    else if idg == 0 || fid == idng then
+      if idh == 1 then
+        dnot f
+      else
+        dand man (dnot f) h
+    else if idh == 0 || idf == idh then
+      dand man f g
+    else if idh == 1 || idf == idnh then
+      dand man f (dnot g)
+    else if idg == idh then
+      g
+    else if idg == idnh then
+      xor man f h
+    else
+
+
+    if f = (NFalse, true) then
+      g
+    else if f = (NFalse, false) then
+      h
+    else if g = (NFalse, true) || 
+
+  let rec ite man h f g =
+    if f = (NFalse, true) then
+
+
+    match f, t with
+    | (NFalse, _), (NFalse, _) ->
+      mkif_int man f var t
+    | (NFalse, _), (NIf(e0b, vb, e1b, _), invb) ->
+      if vb <
+      
+    let ida = ident_cnode t1 in
+    let idb = ident_cnode t2 in
+    if ida == idb then
+      (NFalse, false)
+    else if ida == ident_cnode (dnot t2) then
+      (NFalse, true)
+    else match t1, t2 with
+      | (NFalse, false), other
+      | other, (NFalse, false) ->
+        other
+      | (NFalse, true), other
+      | other, (NFalse, true) ->
+        dnot other
+      | (NIf(e0a, va, e1a, _),inva), (NIf(e0b, vb, e1b, _),invb) ->
+        let key = if ida < idb then (ida, idb) else (idb, ida) in
+        try
+          Hashtbl.find man.xor_cache key
+        with Not_found ->
+          let e0a = (e0a,inva) in
+          let e1a = if inva then not_cnode e1a else e1a in
+          let e0b = (e0b,invb) in
+          let e1b = if invb then not_cnode e1b else e1b in
+          let c = vb - va in
+          let f =
+            if c = 0 then
+              mkif_int man (xor man e0a e0b) va (xor man e1a e1b)
+            else if c < 0 then
+              mkif_int man (xor man e0b t1) vb (xor man e1b t1)
+            else
+              mkif_int man (xor man e0a t2) va (xor man e1a t2)
+          in
+          Hashtbl.replace man.xor_cache key f;
+          f*)
 
 
   let cofactor man v t =
@@ -654,6 +799,9 @@ type man = Raw.man
 
 let clear ctx = 
   Raw.clear ctx
+
+let flush ctx =
+  Raw.flush ctx
 
 let init ?cache:(init=1002403) () =
   Raw.init ~cache:init ()

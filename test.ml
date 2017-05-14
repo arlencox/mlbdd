@@ -332,6 +332,26 @@ let bdd_tests = "MLBDD tests" >::: [
             ) npq in
           assert_equal ~cmp:MLBDD.equal npq npq2
         );
+      "foldb_unit" >:: (fun ctx ->
+          let man = MLBDD.init ~cache:100 () in
+          let p = MLBDD.ithvar man 0 in
+          let q = MLBDD.ithvar man 1 in
+          let npq = MLBDD.dnot (MLBDD.dor p q) in
+          let imp p q = MLBDD.dor (MLBDD.dnot p) q in
+          let ite l v r =
+            let v = MLBDD.ithvar man v in
+            MLBDD.dand (imp (MLBDD.dnot v) l) (imp v r)
+          in
+          let npq2 = MLBDD.foldb (function
+              | MLBDD.BFalse ->
+                MLBDD.dfalse man
+              | MLBDD.BTrue ->
+                MLBDD.dtrue man
+              | MLBDD.BIf (e0,v,e1) ->
+                ite e0 v e1
+            ) npq in
+          assert_equal ~cmp:MLBDD.equal npq npq2
+        );
       "mkite" >:: (fun ctx ->
           let man = MLBDD.init () in
           let b1 = MLBDD.ithvar man 0 in

@@ -193,6 +193,8 @@ module Raw = struct
     | (NFalse, true) -> -1
     | (NFalse, false) -> -2
 
+  let hash = id
+
   let equal t1 t2 =
     match t1, t2 with
     | (NFalse, a),(NFalse, b) when a == b -> true
@@ -603,6 +605,29 @@ module Raw = struct
     in
     fold visited man f t
 
+  let foldb man f t =
+    let visited = Hashtbl.create ((IfHashCons.length man.bdd_hc)*3/2) in
+    let rec foldb visited man f node =
+      let id = ident_cnode node in
+      begin try
+          Hashtbl.find visited id
+        with Not_found ->
+          let res = match node with
+            | (NFalse, false) ->
+              f BFalse
+            | (NFalse, true) ->
+              f BTrue
+            | (NIf(el, v, er, _), pol) ->
+              let rl = foldb visited man f (el, pol) in
+              let rr = foldb visited man f (if pol then dnot er else er) in
+              f (BIf (rl, v, rr))
+          in
+          Hashtbl.replace visited id res;
+          res
+      end
+    in
+    foldb visited man f t
+
   let permute man perm t =
     fold man (function
         | False -> dfalse
@@ -771,6 +796,8 @@ type 'a b = 'a Raw.b =
 let id t =
   Raw.id t.node
 
+let hash = id
+
 let inspect t =
   match Raw.inspect t.node with
   | False -> False
@@ -786,6 +813,9 @@ let inspectb t =
 
 let fold f t =
   Raw.fold t.man f t.node
+
+let foldb f t =
+  Raw.foldb t.man f t.node
 
 let permute perm t =
   { t with node = Raw.permute t.man perm t.node }

@@ -203,6 +203,10 @@ val equal : t -> t -> bool
     be used as a hash code *)
 val id : t -> int
 
+(** [hash t] returns a hash code for a particular node.  Note hash codes should
+    not be persisted from run to run. *)
+val hash : t -> int
+
 
 (** {3 Constructors} *)
 
@@ -299,6 +303,10 @@ val inspectb : t -> t b
     BDD. *)
 val fold : ('r e -> 'r) -> t -> 'r
 
+(** [fold f t] folds over the BDD's structure calling [f] on each node in the
+    BDD.  Follows the traditional BDD structure. *)
+val foldb : ('r b -> 'r) -> t -> 'r
+
 (** {3 Satisfiability and Primality Queries} *)
 
 (** [sat t] returns [None] if unsatisfiable, otherwise it returns a list of
@@ -351,7 +359,6 @@ val to_string : t -> string
 val to_stringb : t -> string
 
 
-
 module Raw : sig
     type var = int
     type t
@@ -377,6 +384,7 @@ module Raw : sig
     val is_true : t -> bool
     val is_false : t -> bool
     val id : t -> int
+    val hash : t -> int
     val to_string : t -> string
     val to_stringb : t -> string
     val ithvar : man -> var -> t
@@ -407,6 +415,7 @@ module Raw : sig
     val inspect : t -> t e
     val inspectb : t -> t b
     val fold : man -> ('a e -> 'a) -> t -> 'a
+    val foldb : man -> ('a b -> 'a) -> t -> 'a
     val permute : man -> var array -> t -> t
     val permutef : man -> (var -> var) -> t -> t
   end

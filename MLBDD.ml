@@ -723,9 +723,9 @@ module Raw = struct
     | (NIf (e0, v, e1, _), false) ->
       BIf ((e0, false), v, e1)
 
-  type 'a fold = (int, 'a) Hashtbl.t
+  type 'a hist = (int, 'a) Hashtbl.t
 
-  let fold_init man : 'a fold =
+  let fold_init man : 'a hist =
       Hashtbl.create ((IfHashCons.length man.bdd_hc)*3/2)
 
 
@@ -965,7 +965,7 @@ let inspectb t =
   | BTrue -> BTrue
   | BIf (e0, v, e1) -> BIf ({t with node = e0}, v, {t with node = e1}) 
 
-type 'a fold = 'a Raw.fold
+type 'a hist = 'a Raw.hist
 
 let fold_init man =
   Raw.fold_init man

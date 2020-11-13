@@ -174,9 +174,10 @@ module Raw = struct
     bdd_hc_stamp : int ref;
     and_cache : (int * int,cnode) Hashtbl.t;
     xor_cache : (int * int,cnode) Hashtbl.t;
+    supp_cache : (int, int list) Hashtbl.t;
   }
 
-  let clear ctx = 
+  let clear ctx =
     IfHashCons.clear ctx.bdd_hc;
     Hashtbl.clear ctx.and_cache;
     Hashtbl.clear ctx.xor_cache
@@ -191,6 +192,7 @@ module Raw = struct
     bdd_hc_stamp = ref 2;
     and_cache = Hashtbl.create init;
     xor_cache = Hashtbl.create init;
+    supp_cache = Hashtbl.create init;
   }
 
   type t = cnode
@@ -359,7 +361,7 @@ module Raw = struct
           Hashtbl.replace man.xor_cache key f;
           f
 
-     
+
 
   let to_stringb t =
     to_stringb_int false t
@@ -408,7 +410,7 @@ module Raw = struct
     | idf, idg, _ when idf == (idg lxor 1) ->
 
 
-    
+
 
     if idf == 1 then
       g
@@ -439,7 +441,7 @@ module Raw = struct
       g
     else if f = (NFalse, false) then
       h
-    else if g = (NFalse, true) || 
+    else if g = (NFalse, true) ||
 
   let rec ite man h f g =
     if f = (NFalse, true) then
@@ -450,7 +452,7 @@ module Raw = struct
       mkif_int man f var t
     | (NFalse, _), (NIf(e0b, vb, e1b, _), invb) ->
       if vb <
-      
+
     let ida = ident_cnode t1 in
     let idb = ident_cnode t2 in
     if ida == idb then
@@ -525,7 +527,7 @@ module Raw = struct
   module ISet = Set.Make(Int)
 
 
-
+(* original version of MLBDD
   let support man t =
     let visited = Hashtbl.create ((IfHashCons.length man.bdd_hc)*3/2) in
     let support = ref ISet.empty in
@@ -545,6 +547,7 @@ module Raw = struct
     in
     itersupport t;
     !support
+ *)
 
   let rec string_of_support s =
     let b = Buffer.create 80 in
@@ -796,14 +799,55 @@ module Raw = struct
         | If (l, v, r) ->
           ite man l (f v) r
       ) t
+
+  (* merges two already sorted list and returns a sorted list *)
+  (* removes duplicates *)
+  (* Time Complexity O(nX + nY) *)
+  (* Tail-Recursive *)
+  let union_sorted lX lY : _ list =
+    let rec union_inner carry = function
+    | ([], l) | (l, []) ->
+      List.rev_append carry l
+    | (((x::x') as lx), ((y::y') as ly)) -> if x = y
+      then union_inner (x::carry) (x', y')
+      else if x < y
+      then union_inner (x::carry) (x', ly)
+      else union_inner (y::carry) (lx, y')
+    in
+    union_inner [] (lX, lY)
+
+  (* returns the support as list of variable sorted by
+   * increasing order *)
+  let sorted_support (man:man) ((node, _):t) : var list =
+    (* man is set as a parameter to avoid a closure *)
+    let rec support_mem man = function
+      | NIf(e0, v, (e1, _), id) -> (
+        try
+          Hashtbl.find man.supp_cache id
+        with Not_found -> (
+          let supp = support_rec man e0 v e1 in
+          Hashtbl.add man.supp_cache id supp;
+          supp
+        )
+      )
+      | NFalse -> []
+    and     support_rec man e0 v e1 =
+      let s0 = support_mem man e0 in
+      let s1 = support_mem man e1 in
+      (v::(union_sorted s0 s1))
+    in
+    support_mem man node
+
+  let support (man:man) (t:t) : support =
+    support_of_list(sorted_support man t)
 end
 
 
 type var = int
 
-type man = Raw.man 
+type man = Raw.man
 
-let clear ctx = 
+let clear ctx =
   Raw.clear ctx
 
 let flush ctx =
@@ -957,13 +1001,13 @@ let inspect t =
   | False -> False
   | True -> True
   | Not a -> Not {t with node = a}
-  | If (e0, v, e1) -> If ({t with node = e0}, v, {t with node = e1}) 
+  | If (e0, v, e1) -> If ({t with node = e0}, v, {t with node = e1})
 
 let inspectb t =
   match Raw.inspectb t.node with
   | BFalse -> BFalse
   | BTrue -> BTrue
-  | BIf (e0, v, e1) -> BIf ({t with node = e0}, v, {t with node = e1}) 
+  | BIf (e0, v, e1) -> BIf ({t with node = e0}, v, {t with node = e1})
 
 type 'a hist = 'a Raw.hist
 

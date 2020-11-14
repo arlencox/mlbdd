@@ -168,13 +168,20 @@ module Raw = struct
   end
 
   module IfHashCons = WeakHash(HashedIf)
+  
+	module Int = struct
+    type t = int
+    let compare a b = b - a
+  end
+
+  module ISet = Set.Make(Int)
 
   type man = {
     bdd_hc : node IfHashCons.t;
     bdd_hc_stamp : int ref;
     and_cache : (int * int,cnode) Hashtbl.t;
     xor_cache : (int * int,cnode) Hashtbl.t;
-    supp_cache : (int, int list) Hashtbl.t;
+    supp_cache : (int, ISet.t) Hashtbl.t;
   }
 
   let clear ctx =
@@ -519,17 +526,7 @@ module Raw = struct
     in
     cofactor t
 
-
-
-  module Int = struct
-    type t = int
-    let compare a b = b - a
-  end
-
-  module ISet = Set.Make(Int)
-
-
-(* original version of MLBDD
+(* [LEGACY]
   let support man t =
     let visited = Hashtbl.create ((IfHashCons.length man.bdd_hc)*3/2) in
     let support = ref ISet.empty in
@@ -567,8 +564,9 @@ module Raw = struct
     ISet.elements s
 
   let support_of_list l =
-    List.fold_left (fun s e -> ISet.add e s) ISet.empty l
-
+		ISet.of_list l
+ (* [LEGACY]
+  * List.fold_left (fun s e -> ISet.add e s) ISet.empty l *)
 
   let exists_sorted man supp t =
     let visited = Hashtbl.create 1023 in
@@ -802,26 +800,7 @@ module Raw = struct
           ite man l (f v) r
       ) t
 
-  (* merges two already sorted list and returns a sorted list *)
-  (* removes duplicates *)
-  (* Time Complexity O(nX + nY) *)
-  (* Tail-Recursive *)
-  let union_sorted (lX:int list) (lY:int list) : int list =
-    let rec union_inner carry = function
-    | ([], l) | (l, []) ->
-      List.rev_append carry l
-    | (((x::x') as lx), ((y::y') as ly)) ->
-      if x = y
-        then union_inner (x::carry) (x', y')
-      else if x < y
-        then union_inner (x::carry) (x', ly)
-        else union_inner (y::carry) (lx, y')
-    in
-    union_inner [] (lX, lY)
-
-  (* returns the support as list of variable sorted by
-   * increasing order *)
-  let sorted_support (man:man) ((node, _):t) : var list =
+  let support (man:man) ((node, _):t) : support =
     (* man is set as a parameter to avoid a closure *)
     let rec support_mem man = function
       | NIf(e0, v, (e1, _), id) -> (
@@ -833,16 +812,13 @@ module Raw = struct
           supp
         )
       )
-      | NFalse -> []
+      | NFalse -> ISet.empty
     and     support_rec man e0 v e1 =
       let s0 = support_mem man e0 in
       let s1 = support_mem man e1 in
-      (v::(union_sorted s0 s1))
+      ISet.add v (ISet.union s0 s1)
     in
     support_mem man node
-
-  let support (man:man) (t:t) : support =
-    support_of_list(sorted_support man t)
 end
 
 
@@ -946,9 +922,6 @@ let ite f var t =
 let cofactor v t =
   let (r0, r1) = Raw.cofactor t.man v t.node in
   ({t with node = r0},{t with node = r1})
-
-let sorted_support t =
-  Raw.sorted_support t.man t.node
 
 let support t =
   Raw.support t.man t.node

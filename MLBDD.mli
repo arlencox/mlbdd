@@ -186,11 +186,6 @@ val manager : t -> man
 (** [support t] computes the supporting variable set for the bdd [t]. *)
 val support : t -> support
 
-(** [sorted_support t] computes the supporting variable set for the bdd [t].
-    returns the supporting variable set as list of variables sorted by
-    increasing order *)
-val sorted_support : t -> int list
-
 (** [list_of_support support] converts a support structure [support] into
     a list of variable indexes that constitute the support *)
 val list_of_support : support -> int list
@@ -430,7 +425,6 @@ module Raw : sig
     val xor : man -> t -> t -> t
     val ite : man -> t -> var -> t -> t
     val cofactor : man -> var -> t -> t * t
-    val sorted_support : man -> t -> var list
     val support : man -> t -> support
     val string_of_support : support -> string
     val list_of_support : support -> var list

@@ -169,21 +169,31 @@ module Raw = struct
 
   module IfHashCons = WeakHash(HashedIf)
 
+  module Int = struct
+    type t = int
+    let compare a b = b - a
+  end
+
+  module ISet = Set.Make(Int)
+
   type man = {
     bdd_hc : node IfHashCons.t;
     bdd_hc_stamp : int ref;
     and_cache : (int * int,cnode) Hashtbl.t;
     xor_cache : (int * int,cnode) Hashtbl.t;
+    supp_cache : (int, ISet.t) Hashtbl.t;
   }
 
-  let clear ctx = 
+  let clear ctx =
     IfHashCons.clear ctx.bdd_hc;
     Hashtbl.clear ctx.and_cache;
-    Hashtbl.clear ctx.xor_cache
+    Hashtbl.clear ctx.xor_cache;
+    Hashtbl.clear ctx.supp_cache
 
   let flush ctx =
     Hashtbl.clear ctx.and_cache;
-    Hashtbl.clear ctx.xor_cache
+    Hashtbl.clear ctx.xor_cache;
+    Hashtbl.clear ctx.supp_cache
 
 
   let init ?cache:(init=1002403) () = {
@@ -191,6 +201,7 @@ module Raw = struct
     bdd_hc_stamp = ref 2;
     and_cache = Hashtbl.create init;
     xor_cache = Hashtbl.create init;
+    supp_cache = Hashtbl.create init;
   }
 
   type t = cnode
@@ -359,7 +370,7 @@ module Raw = struct
           Hashtbl.replace man.xor_cache key f;
           f
 
-     
+
 
   let to_stringb t =
     to_stringb_int false t
@@ -408,7 +419,7 @@ module Raw = struct
     | idf, idg, _ when idf == (idg lxor 1) ->
 
 
-    
+
 
     if idf == 1 then
       g
@@ -439,7 +450,7 @@ module Raw = struct
       g
     else if f = (NFalse, false) then
       h
-    else if g = (NFalse, true) || 
+    else if g = (NFalse, true) ||
 
   let rec ite man h f g =
     if f = (NFalse, true) then
@@ -450,7 +461,7 @@ module Raw = struct
       mkif_int man f var t
     | (NFalse, _), (NIf(e0b, vb, e1b, _), invb) ->
       if vb <
-      
+
     let ida = ident_cnode t1 in
     let idb = ident_cnode t2 in
     if ida == idb then
@@ -515,37 +526,6 @@ module Raw = struct
     in
     cofactor t
 
-
-
-  module Int = struct
-    type t = int
-    let compare a b = b - a
-  end
-
-  module ISet = Set.Make(Int)
-
-
-
-  let support man t =
-    let visited = Hashtbl.create ((IfHashCons.length man.bdd_hc)*3/2) in
-    let support = ref ISet.empty in
-    let rec itersupport (node,inv) =
-      match node with
-      | NIf(e0, v, e1, id) ->
-        if Hashtbl.mem visited id then
-          ()
-        else begin
-          Hashtbl.replace visited id ();
-          support := ISet.add v !support;
-          itersupport (e0,false);
-          itersupport e1;
-        end
-      | _ ->
-        ()
-    in
-    itersupport t;
-    !support
-
   let rec string_of_support s =
     let b = Buffer.create 80 in
     let first = ref true in
@@ -558,12 +538,9 @@ module Raw = struct
       ) s;
     Buffer.contents b
 
-  let list_of_support s =
-    ISet.elements s
+  let list_of_support = ISet.elements
 
-  let support_of_list l =
-    List.fold_left (fun s e -> ISet.add e s) ISet.empty l
-
+  let support_of_list = ISet.of_list
 
   let exists_sorted man supp t =
     let visited = Hashtbl.create 1023 in
@@ -796,14 +773,34 @@ module Raw = struct
         | If (l, v, r) ->
           ite man l (f v) r
       ) t
+
+  let support (man:man) ((node, _):t) : support =
+    (* man is set as a parameter to avoid a closure *)
+    let rec support_mem man = function
+      | NIf(e0, v, (e1, _), id) -> (
+        try
+          Hashtbl.find man.supp_cache id
+        with Not_found -> (
+          let supp = support_rec man e0 v e1 in
+          Hashtbl.add man.supp_cache id supp;
+          supp
+        )
+      )
+      | NFalse -> ISet.empty
+    and     support_rec man e0 v e1 =
+      let s0 = support_mem man e0 in
+      let s1 = support_mem man e1 in
+      ISet.add v (ISet.union s0 s1)
+    in
+    support_mem man node
 end
 
 
 type var = int
 
-type man = Raw.man 
+type man = Raw.man
 
-let clear ctx = 
+let clear ctx =
   Raw.clear ctx
 
 let flush ctx =
@@ -900,7 +897,6 @@ let cofactor v t =
   let (r0, r1) = Raw.cofactor t.man v t.node in
   ({t with node = r0},{t with node = r1})
 
-
 let support t =
   Raw.support t.man t.node
 
@@ -957,13 +953,13 @@ let inspect t =
   | False -> False
   | True -> True
   | Not a -> Not {t with node = a}
-  | If (e0, v, e1) -> If ({t with node = e0}, v, {t with node = e1}) 
+  | If (e0, v, e1) -> If ({t with node = e0}, v, {t with node = e1})
 
 let inspectb t =
   match Raw.inspectb t.node with
   | BFalse -> BFalse
   | BTrue -> BTrue
-  | BIf (e0, v, e1) -> BIf ({t with node = e0}, v, {t with node = e1}) 
+  | BIf (e0, v, e1) -> BIf ({t with node = e0}, v, {t with node = e1})
 
 type 'a hist = 'a Raw.hist
 

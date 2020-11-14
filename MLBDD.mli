@@ -32,7 +32,7 @@
   manager is responsible for keeping track of tables of all of the allocated
   BDD nodes across all of the BDDs created from that manager.  BDDs from two
   different managers must never be mixed.
-  
+
   To create a manager, the [init] function below can be used.  The following
   code constructs a manager [man] and constructs a BDD representing the 0th
   variable.
@@ -69,7 +69,7 @@ let ab = dand a b in
 
   Furthermore, it is possible to constrain that three variables are equal to
   each other:
-  
+
 {[
 let a_eq_b = eq a b in
 let c = ithvar man 2 in
@@ -132,7 +132,7 @@ iterprime (fun sat ->
           ) sat
     ) eq_ac
 ]}
-  
+
 
 *)
 

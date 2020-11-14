@@ -806,15 +806,16 @@ module Raw = struct
   (* removes duplicates *)
   (* Time Complexity O(nX + nY) *)
   (* Tail-Recursive *)
-  let union_sorted lX lY : _ list =
+  let union_sorted (lX:int list) (lY:int list) : int list =
     let rec union_inner carry = function
     | ([], l) | (l, []) ->
       List.rev_append carry l
-    | (((x::x') as lx), ((y::y') as ly)) -> if x = y
-      then union_inner (x::carry) (x', y')
+    | (((x::x') as lx), ((y::y') as ly)) ->
+      if x = y
+        then union_inner (x::carry) (x', y')
       else if x < y
-      then union_inner (x::carry) (x', ly)
-      else union_inner (y::carry) (lx, y')
+        then union_inner (x::carry) (x', ly)
+        else union_inner (y::carry) (lx, y')
     in
     union_inner [] (lX, lY)
 

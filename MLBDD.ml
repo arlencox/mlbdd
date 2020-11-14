@@ -168,8 +168,8 @@ module Raw = struct
   end
 
   module IfHashCons = WeakHash(HashedIf)
-  
-	module Int = struct
+
+  module Int = struct
     type t = int
     let compare a b = b - a
   end
@@ -526,28 +526,6 @@ module Raw = struct
     in
     cofactor t
 
-(* [LEGACY]
-  let support man t =
-    let visited = Hashtbl.create ((IfHashCons.length man.bdd_hc)*3/2) in
-    let support = ref ISet.empty in
-    let rec itersupport (node,inv) =
-      match node with
-      | NIf(e0, v, e1, id) ->
-        if Hashtbl.mem visited id then
-          ()
-        else begin
-          Hashtbl.replace visited id ();
-          support := ISet.add v !support;
-          itersupport (e0,false);
-          itersupport e1;
-        end
-      | _ ->
-        ()
-    in
-    itersupport t;
-    !support
- *)
-
   let rec string_of_support s =
     let b = Buffer.create 80 in
     let first = ref true in
@@ -560,13 +538,9 @@ module Raw = struct
       ) s;
     Buffer.contents b
 
-  let list_of_support s =
-    ISet.elements s
+  let list_of_support = ISet.elements
 
-  let support_of_list l =
-		ISet.of_list l
- (* [LEGACY]
-  * List.fold_left (fun s e -> ISet.add e s) ISet.empty l *)
+  let support_of_list = ISet.of_list
 
   let exists_sorted man supp t =
     let visited = Hashtbl.create 1023 in

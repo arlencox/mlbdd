@@ -32,7 +32,7 @@
   manager is responsible for keeping track of tables of all of the allocated
   BDD nodes across all of the BDDs created from that manager.  BDDs from two
   different managers must never be mixed.
-  
+
   To create a manager, the [init] function below can be used.  The following
   code constructs a manager [man] and constructs a BDD representing the 0th
   variable.
@@ -69,7 +69,7 @@ let ab = dand a b in
 
   Furthermore, it is possible to constrain that three variables are equal to
   each other:
-  
+
 {[
 let a_eq_b = eq a b in
 let c = ithvar man 2 in
@@ -132,7 +132,7 @@ iterprime (fun sat ->
           ) sat
     ) eq_ac
 ]}
-  
+
 
 *)
 
@@ -185,6 +185,11 @@ val manager : t -> man
 
 (** [support t] computes the supporting variable set for the bdd [t]. *)
 val support : t -> support
+
+(** [sorted_support t] computes the supporting variable set for the bdd [t].
+    returns the supportting variable set as list of variables sorted by
+    increasing order *)
+val sorted_support : t -> int list
 
 (** [list_of_support support] converts a support structure [support] into
     a list of variable indexes that constitute the support *)

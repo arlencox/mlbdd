@@ -180,11 +180,13 @@ module Raw = struct
   let clear ctx =
     IfHashCons.clear ctx.bdd_hc;
     Hashtbl.clear ctx.and_cache;
-    Hashtbl.clear ctx.xor_cache
+    Hashtbl.clear ctx.xor_cache;
+    Hashtbl.clear ctx.supp_cache
 
   let flush ctx =
     Hashtbl.clear ctx.and_cache;
-    Hashtbl.clear ctx.xor_cache
+    Hashtbl.clear ctx.xor_cache;
+    Hashtbl.clear ctx.supp_cache
 
 
   let init ?cache:(init=1002403) () = {
@@ -944,6 +946,8 @@ let cofactor v t =
   let (r0, r1) = Raw.cofactor t.man v t.node in
   ({t with node = r0},{t with node = r1})
 
+let sorted_support t =
+  Raw.sorted_support t.man t.node
 
 let support t =
   Raw.support t.man t.node

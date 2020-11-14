@@ -187,7 +187,7 @@ val manager : t -> man
 val support : t -> support
 
 (** [sorted_support t] computes the supporting variable set for the bdd [t].
-    returns the supportting variable set as list of variables sorted by
+    returns the supporting variable set as list of variables sorted by
     increasing order *)
 val sorted_support : t -> int list
 

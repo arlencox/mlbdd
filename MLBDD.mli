@@ -430,6 +430,7 @@ module Raw : sig
     val xor : man -> t -> t -> t
     val ite : man -> t -> var -> t -> t
     val cofactor : man -> var -> t -> t * t
+    val sorted_support : man -> t -> var list
     val support : man -> t -> support
     val string_of_support : support -> string
     val list_of_support : support -> var list

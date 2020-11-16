@@ -1,0 +1,8 @@
+(test
+  (name test)
+  (libraries MLBDD ounit2)
+)
+
+(env
+  (dev
+    (flags (:standard -warn-error -A))))

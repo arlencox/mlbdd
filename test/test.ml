@@ -12,39 +12,39 @@ open OUnit2
   print_endline ""*)
 
 let bdd_tests = "MLBDD tests" >::: [
-      "true_canonical" >:: (fun ctx ->
+      "true_canonical" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let t1 = MLBDD.dtrue man in
           let t2 = MLBDD.dtrue man in
           assert_equal ~cmp:MLBDD.equal t1 t2
         );
-      "false_canonical" >:: (fun ctx ->
+      "false_canonical" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let t1 = MLBDD.dfalse man in
           let t2 = MLBDD.dfalse man in
           assert_equal ~cmp:MLBDD.equal t1 t2
         );
-      "true != false" >:: (fun ctx ->
+      "true != false" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let t1 = MLBDD.dfalse man in
           let t2 = MLBDD.dtrue man in
           let r = MLBDD.equal t1 t2 in
           assert_equal r false
         );
-      "and false" >:: (fun ctx ->
+      "and false" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let v0 = MLBDD.ithvar man 0 in
           let t1 = MLBDD.dfalse man in
           let r = MLBDD.is_false (MLBDD.dand v0 t1) in
           assert_equal r true
         );
-      "double_negate" >:: (fun ctx ->
+      "double_negate" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let t1 = MLBDD.dfalse man in
           let t2 = MLBDD.dnot (MLBDD.dnot t1) in
           assert_equal ~cmp:MLBDD.equal t1 t2
         );
-      "and_canonical" >:: (fun ctx ->
+      "and_canonical" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let v0 = MLBDD.ithvar man 0 in
           let v1 = MLBDD.ithvar man 1 in
@@ -52,7 +52,7 @@ let bdd_tests = "MLBDD tests" >::: [
           let t2 = MLBDD.dand v1 v0 in
           assert_equal ~cmp:MLBDD.equal t1 t2
         );
-      "eq_exists" >:: (fun ctx ->
+      "eq_exists" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let v0 = MLBDD.ithvar man 0 in
           let v1 = MLBDD.ithvar man 1 in
@@ -64,7 +64,7 @@ let bdd_tests = "MLBDD tests" >::: [
           let t2 = MLBDD.eq v0 v2 in
           assert_equal ~cmp:MLBDD.equal t1 t2
         );
-      "exists2" >:: (fun ctx ->
+      "exists2" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let v2 = MLBDD.ithvar man 2 in
           let v4 = MLBDD.ithvar man 4 in
@@ -79,7 +79,7 @@ let bdd_tests = "MLBDD tests" >::: [
           let t6 = MLBDD.exists (MLBDD.support v5) t5 in
           assert_equal ~cmp:MLBDD.equal t6 t4
         );
-      "exists3" >:: (fun ctx ->
+      "exists3" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let v2 = MLBDD.ithvar man 2 in
           let v4 = MLBDD.ithvar man 4 in
@@ -96,7 +96,7 @@ let bdd_tests = "MLBDD tests" >::: [
           assert_equal ~cmp:MLBDD.equal t6 t4;
           assert_equal ~cmp:MLBDD.equal t6 t7
         );
-      "exists3_raw" >:: (fun ctx ->
+      "exists3_raw" >:: (fun _ctx ->
           let man = MLBDD.Raw.init ~cache:100 () in
           let v2 = MLBDD.Raw.ithvar man 2 in
           let v4 = MLBDD.Raw.ithvar man 4 in
@@ -112,7 +112,7 @@ let bdd_tests = "MLBDD tests" >::: [
           assert_equal ~cmp:MLBDD.Raw.equal t6 t4;
           assert_equal ~cmp:MLBDD.Raw.equal t6 t7
         );
-      "exists_imp" >:: (fun ctx ->
+      "exists_imp" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let v0 = MLBDD.ithvar man 0 in
           let v1 = MLBDD.ithvar man 1 in
@@ -123,7 +123,7 @@ let bdd_tests = "MLBDD tests" >::: [
           assert_equal ~cmp:MLBDD.equal t2 t3
         );
 
-      "and_project" >:: (fun ctx ->
+      "and_project" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let v0 = MLBDD.ithvar man 0 in
           let v1 = MLBDD.ithvar man 1 in
@@ -131,7 +131,7 @@ let bdd_tests = "MLBDD tests" >::: [
           let t2 = MLBDD.exists (MLBDD.support v1) t1 in
           assert_equal ~cmp:MLBDD.equal v0 t2
         );
-      "tautology" >:: (fun ctx ->
+      "tautology" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let imply a b = MLBDD.dor (MLBDD.dnot a) b in
           let p = MLBDD.ithvar man 0 in
@@ -142,7 +142,7 @@ let bdd_tests = "MLBDD tests" >::: [
           let taut = MLBDD.forall (MLBDD.support modus_ponens) modus_ponens in
           assert_equal (MLBDD.is_true taut) true
         );
-      "support string" >:: (fun ctx ->
+      "support string" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let q = MLBDD.ithvar man 1 in
@@ -151,25 +151,25 @@ let bdd_tests = "MLBDD tests" >::: [
           let s = MLBDD.string_of_support supp in
           assert_equal s "1,0"
         );
-      "bddstring1" >:: (fun ctx ->
+      "bddstring1" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let s = MLBDD.to_string p in
           assert_equal s "(0, F, T,2)"
         );
-      "bddstring2" >:: (fun ctx ->
+      "bddstring2" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let s = MLBDD.to_string (MLBDD.dnot p) in
           assert_equal s "~(0, F, T,2)"
         );
-      "bddstringb1" >:: (fun ctx ->
+      "bddstringb1" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let s = MLBDD.to_stringb p in
           assert_equal s "(0, F, T,2)"
         );
-      "sat2" >:: (fun ctx ->
+      "sat2" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let q = MLBDD.ithvar man 1 in
@@ -179,7 +179,7 @@ let bdd_tests = "MLBDD tests" >::: [
           | Some s ->
             assert_equal s [(true, 0); (true, 1)]
         );
-      "allsat2" >:: (fun ctx ->
+      "allsat2" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let q = MLBDD.ithvar man 1 in
@@ -187,7 +187,7 @@ let bdd_tests = "MLBDD tests" >::: [
           let r = MLBDD.allsat pq in
           assert_equal r [[(true, 0); (true, 1)]]
         );
-      "itersat2" >:: (fun ctx ->
+      "itersat2" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let q = MLBDD.ithvar man 1 in
@@ -196,7 +196,7 @@ let bdd_tests = "MLBDD tests" >::: [
               assert_equal s [(true, 0); (true, 1)]
             ) pq
         );
-      "prime2" >:: (fun ctx ->
+      "prime2" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let q = MLBDD.ithvar man 1 in
@@ -207,7 +207,7 @@ let bdd_tests = "MLBDD tests" >::: [
             let r = s = [(true, 0)] || s = [(true, 1)] in
             assert_equal r true
         );
-      "allprime2" >:: (fun ctx ->
+      "allprime2" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let q = MLBDD.ithvar man 1 in
@@ -218,7 +218,7 @@ let bdd_tests = "MLBDD tests" >::: [
           let r = p = r1 || p = r2 in
           assert_equal r true
         );
-      "iterprime2" >:: (fun ctx ->
+      "iterprime2" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let q = MLBDD.ithvar man 1 in
@@ -230,7 +230,7 @@ let bdd_tests = "MLBDD tests" >::: [
               assert_equal r true
             ) pq
         );
-      "cofactor1" >:: (fun ctx ->
+      "cofactor1" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let q = MLBDD.ithvar man 1 in
@@ -239,7 +239,7 @@ let bdd_tests = "MLBDD tests" >::: [
           assert_equal (MLBDD.is_false c0) true;
           assert_equal ~cmp:MLBDD.equal c1 q
         );
-      "cofactor2" >:: (fun ctx ->
+      "cofactor2" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let q = MLBDD.ithvar man 1 in
@@ -248,7 +248,7 @@ let bdd_tests = "MLBDD tests" >::: [
           assert_equal (MLBDD.is_false c0) true;
           assert_equal ~cmp:MLBDD.equal c1 p
         );
-      "cofactor3" >:: (fun ctx ->
+      "cofactor3" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let q = MLBDD.ithvar man 1 in
@@ -260,7 +260,7 @@ let bdd_tests = "MLBDD tests" >::: [
           let pr2 = MLBDD.dor c0 c1 in
           assert_equal ~cmp:MLBDD.equal pr pr2
         );
-      "cofactor4" >:: (fun ctx ->
+      "cofactor4" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let q = MLBDD.ithvar man 1 in
@@ -272,7 +272,7 @@ let bdd_tests = "MLBDD tests" >::: [
           let pr2 = MLBDD.dand c0 c1 in
           assert_equal ~cmp:MLBDD.equal pr pr2
         );
-      "cofactor4" >:: (fun ctx ->
+      "cofactor4" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let q = MLBDD.ithvar man 1 in
@@ -282,7 +282,7 @@ let bdd_tests = "MLBDD tests" >::: [
           let (c0,c1) = MLBDD.cofactor 4 pqr in
           assert_equal ~cmp:MLBDD.equal c0 c1
         );
-      "cofactor5" >:: (fun ctx ->
+      "cofactor5" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let q = MLBDD.ithvar man 1 in
@@ -292,7 +292,7 @@ let bdd_tests = "MLBDD tests" >::: [
           let (c0,c1) = MLBDD.cofactor (-1) pqr in
           assert_equal ~cmp:MLBDD.equal c0 c1
         );
-      "cofactor5" >:: (fun ctx ->
+      "cofactor5" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let q = MLBDD.ithvar man 1 in
@@ -300,7 +300,7 @@ let bdd_tests = "MLBDD tests" >::: [
           let (c0,c1) = MLBDD.cofactor 4 npq in
           assert_equal ~cmp:MLBDD.equal c0 c1
         );
-      "cofactor6" >:: (fun ctx ->
+      "cofactor6" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let q = MLBDD.ithvar man 1 in
@@ -310,7 +310,7 @@ let bdd_tests = "MLBDD tests" >::: [
           assert_equal (MLBDD.is_false c1) true;
           assert_equal ~cmp:MLBDD.equal c0 (MLBDD.dnot p)
         );
-      "fold_unit" >:: (fun ctx ->
+      "fold_unit" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let q = MLBDD.ithvar man 1 in
@@ -332,7 +332,7 @@ let bdd_tests = "MLBDD tests" >::: [
             ) npq in
           assert_equal ~cmp:MLBDD.equal npq npq2
         );
-      "foldb_unit" >:: (fun ctx ->
+      "foldb_unit" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in
           let q = MLBDD.ithvar man 1 in
@@ -352,7 +352,7 @@ let bdd_tests = "MLBDD tests" >::: [
             ) npq in
           assert_equal ~cmp:MLBDD.equal npq npq2
         );
-      "mkite" >:: (fun ctx ->
+      "mkite" >:: (fun _ctx ->
           let man = MLBDD.init () in
           let b1 = MLBDD.ithvar man 0 in
           let f = MLBDD.dfalse man in
@@ -360,7 +360,7 @@ let bdd_tests = "MLBDD tests" >::: [
           let b2 = MLBDD.ite f 0 t in
           assert_equal ~cmp:MLBDD.equal b1 b2
         );
-      "permute" >:: (fun ctx ->
+      "permute" >:: (fun _ctx ->
           let man = MLBDD.init () in
           let a = MLBDD.ithvar man 0 in
           let na = MLBDD.dnot a in
@@ -372,7 +372,7 @@ let bdd_tests = "MLBDD tests" >::: [
           let b3 = MLBDD.permute [| 1; 0 |] b2 in
           assert_equal ~cmp:MLBDD.equal b1 b3
         );
-      "support extract" >:: (fun ctx ->
+      "support extract" >:: (fun _ctx ->
           let man = MLBDD.init () in
           let a = MLBDD.ithvar man 0 in
           let na = MLBDD.dnot a in
@@ -382,7 +382,7 @@ let bdd_tests = "MLBDD tests" >::: [
           let supp = MLBDD.list_of_support supp in
           assert_bool "supp = [1; 0]" (supp = [1; 0])
         );
-      "permutef" >:: (fun ctx ->
+      "permutef" >:: (fun _ctx ->
           let man = MLBDD.init () in
           let a = MLBDD.ithvar man 0 in
           let na = MLBDD.dnot a in
@@ -394,18 +394,18 @@ let bdd_tests = "MLBDD tests" >::: [
           let b3 = MLBDD.permutef (fun i -> 1 - i) b2 in
           assert_equal ~cmp:MLBDD.equal b1 b3
         );
-      "id_test" >:: (fun ctx ->
+      "id_test" >:: (fun _ctx ->
           let man = MLBDD.init () in
           let a = MLBDD.ithvar man 0 in
           assert_equal ~cmp:(fun a b -> not (a = b)) (MLBDD.id a) (MLBDD.id (MLBDD.dtrue man));
           assert_equal ~cmp:(fun a b -> not (a = b)) (MLBDD.id a) (MLBDD.id (MLBDD.dfalse man));
           assert_equal ~cmp:(fun a b -> not (a = b)) (MLBDD.id (MLBDD.dtrue man)) (MLBDD.id (MLBDD.dfalse man))
         );
-      "inspect_test_pos" >:: (fun ctx ->
+      "inspect_test_pos" >:: (fun _ctx ->
           let man = MLBDD.init () in
           let a = MLBDD.ithvar man 0 in
           match MLBDD.inspect a with
-          | MLBDD.If (e0, v, e1) ->
+          | MLBDD.If (e0, _v, e1) ->
             begin match MLBDD.inspect e0 with
               | MLBDD.False -> ()
               | _ -> assert_bool "basic inspect false is not false" false
@@ -417,14 +417,14 @@ let bdd_tests = "MLBDD tests" >::: [
           | _ ->
             assert_bool "basic inspect var is not an if" false
         );
-      "inspect_test_neg" >:: (fun ctx ->
+      "inspect_test_neg" >:: (fun _ctx ->
           let man = MLBDD.init () in
           let a = MLBDD.ithvar man 0 in
           let a = MLBDD.dnot a in
           match MLBDD.inspect a with
           | MLBDD.Not e ->
             begin match MLBDD.inspect e with
-              | MLBDD.If (e0, v, e1) ->
+              | MLBDD.If (e0, _v, e1) ->
                 begin match MLBDD.inspect e0 with
                   | MLBDD.False -> ()
                   | _ -> assert_bool "basic inspect false is not false" false
@@ -439,11 +439,11 @@ let bdd_tests = "MLBDD tests" >::: [
           | _ ->
             assert_bool "inspect not is not a not" false
         );
-      "inspectb_test_pos" >:: (fun ctx ->
+      "inspectb_test_pos" >:: (fun _ctx ->
           let man = MLBDD.init () in
           let a = MLBDD.ithvar man 0 in
           match MLBDD.inspectb a with
-          | MLBDD.BIf (e0, v, e1) ->
+          | MLBDD.BIf (e0, _v, e1) ->
             begin match MLBDD.inspectb e0 with
               | MLBDD.BFalse -> ()
               | _ -> assert_bool "basic inspectb false is not false" false
@@ -455,12 +455,12 @@ let bdd_tests = "MLBDD tests" >::: [
           | _ ->
             assert_bool "basic inspectb var is not an if" false
         );
-      "inspectb_test_pos" >:: (fun ctx ->
+      "inspectb_test_pos" >:: (fun _ctx ->
           let man = MLBDD.init () in
           let a = MLBDD.ithvar man 0 in
           let a = MLBDD.dnot a in
           match MLBDD.inspectb a with
-          | MLBDD.BIf (e0, v, e1) ->
+          | MLBDD.BIf (e0, _v, e1) ->
             begin match MLBDD.inspectb e0 with
               | MLBDD.BTrue -> ()
               | _ -> assert_bool "basic inspectb false is not true" false
@@ -475,7 +475,7 @@ let bdd_tests = "MLBDD tests" >::: [
     ]
 
 let weakhash_tests = "weak hash tests" >::: [
-      "hash_add" >:: (fun ctx ->
+      "hash_add" >:: (fun _ctx ->
           let module H = MLBDD.WeakHash(struct
               type t = int
               let equal = (=)
@@ -496,7 +496,7 @@ let weakhash_tests = "weak hash tests" >::: [
                 assert_equal v (H.find w k)
               ) h
         );
-      (*"hash_big" >:: (fun ctx ->
+      (*"hash_big" >:: (fun _ctx ->
           let module H = WeakHash.Make(struct
               type t = int
               let equal = (=)
@@ -518,7 +518,7 @@ let weakhash_tests = "weak hash tests" >::: [
           done;
           let wend = Unix.gettimeofday () in
 
-          (*OUnit2.logf ctx `Info "Hashtbl: %f, WeakHash: %f\n" (hend -. hstart) (wend -. wstart);*)
+          (*OUnit2.logf _ctx `Info "Hashtbl: %f, WeakHash: %f\n" (hend -. hstart) (wend -. wstart);*)
 
           let hstart = Unix.gettimeofday () in
           for i = 0 to 1_000_000 do
@@ -532,7 +532,7 @@ let weakhash_tests = "weak hash tests" >::: [
           done;
           let wend = Unix.gettimeofday () in
 
-          (*OUnit2.logf ctx `Info "Hashtbl: %f, WeakHash: %f\n" (hend -. hstart) (wend -. wstart);*)
+          (*OUnit2.logf _ctx `Info "Hashtbl: %f, WeakHash: %f\n" (hend -. hstart) (wend -. wstart);*)
           ()
 
           (*Hashtbl.iter (fun k v ->

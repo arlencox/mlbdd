@@ -1,0 +1,8 @@
+(library
+  (name MLBDD)
+  (modes byte native)
+)
+
+(env
+  (dev
+    (flags (:standard -warn-error -A))))

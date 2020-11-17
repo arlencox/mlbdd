@@ -207,8 +207,8 @@ module Raw = struct
   type t = cnode
 
   let id = function
-    | (NIf (e0,v,e1,id), true) -> id + 1
-    | (NIf (e0,v,e1,id), false) -> id
+    | (NIf (_e0,_v,_e1,id), true) -> id + 1
+    | (NIf (_e0,_v,_e1,id), false) -> id
     | (NFalse, true) -> -1
     | (NFalse, false) -> -2
 
@@ -396,7 +396,7 @@ module Raw = struct
   (*let xor man a b = dnot (nxor man a b)*)
 
 
-  let rec ite man f var t =
+  let ite man f var t =
     let v = ithvar man var in
     dand man (imply man v t) (imply man (dnot v) f)
 
@@ -526,7 +526,7 @@ module Raw = struct
     in
     cofactor t
 
-  let rec string_of_support s =
+  let string_of_support s =
     let b = Buffer.create 80 in
     let first = ref true in
     ISet.iter (fun i ->

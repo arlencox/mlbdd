@@ -149,7 +149,7 @@ type man
     represents the formula *)
 type t
 
-(** [suppor] is the type of support for a BDD.  A support is the set of
+(** [support] is the type of support for a BDD.  A support is the set of
     variables that are needed to represent a formula *)
 type support
 

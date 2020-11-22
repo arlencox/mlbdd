@@ -1,5 +1,7 @@
 (library
   (name MLBDD)
+  (public_name mlbdd)
+  (wrapped false)
   (modes byte native)
   (ocamlopt_flags (:standard -O3 -unsafe -unboxed-types -inline-max-unroll 2 -rounds 4))
 )

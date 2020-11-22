@@ -1,6 +1,6 @@
 (lang dune 2.7)
 (name mlbdd)
-(version 0.7)
+(version 0.7.1)
 
 (generate_opam_files true)
 

@@ -310,6 +310,16 @@ let bdd_tests = "MLBDD tests" >::: [
           assert_equal (MLBDD.is_false c1) true;
           assert_equal ~cmp:MLBDD.equal c0 (MLBDD.dnot p)
         );
+      "cofactor7" >:: (fun _ctx ->
+          let man = MLBDD.init ~cache:100 () in
+          let p = MLBDD.ithvar man 0 in
+          let np = MLBDD.dnot p in
+          let q = MLBDD.ithvar man 1 in
+          let pq = MLBDD.xor p q in
+          let (c0, c1) = MLBDD.cofactor 1 pq in
+          assert_equal ~cmp:MLBDD.equal c0 p;
+          assert_equal ~cmp:MLBDD.equal c1 np;
+        );
       "fold_unit" >:: (fun _ctx ->
           let man = MLBDD.init ~cache:100 () in
           let p = MLBDD.ithvar man 0 in

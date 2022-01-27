@@ -496,33 +496,32 @@ module Raw = struct
           Hashtbl.replace man.xor_cache key f;
           f*)
 
+  let cnot_cnode c ((node, inv):cnode) : cnode =
+    (node, c != inv)
 
   let cofactor man v t =
     let visited = Hashtbl.create ((IfHashCons.length man.bdd_hc)*3/2) in
     let rec cofactor = function
       | (NIf(e0, vc, e1, id), inv) as node ->
-        begin try
-            Hashtbl.find visited id
-          with Not_found ->
-            let res = if v = vc then
-                let e0 = (e0,inv) in
-                let e1 = if inv then not_cnode e1 else e1 in
-                (e0,e1)
-              else if v < vc then
-                (node,node)
-              else (* v > vc *)
-                let e0 = (e0,inv) in
-                let e1 = if inv then not_cnode e1 else e1 in
-                let (e00,e01) = cofactor e0 in
-                let (e10,e11) = cofactor e1 in
-                let r0 = mkif_int man e00 vc e10 in
-                let r1 = mkif_int man e01 vc e11 in
-                (r0, r1)
-            in
-            Hashtbl.replace visited id res;
-            res
-        end
-      | res -> res,res
+        if v = vc then
+          ((e0, inv), cnot_cnode inv e1)
+        else if v < vc then
+          (node, node)
+        else
+          let r0, r1 =
+            try Hashtbl.find visited id
+            with Not_found ->
+              let r00, r01 = cofactor (e0, false) in
+              let r10, r11 = cofactor  e1 in
+              let r0 = mkif_int man r00 vc r10 in
+              let r1 = mkif_int man r01 vc r11 in
+              let res = (r0, r1) in
+              Hashtbl.replace visited id res;
+              res
+          in
+          (cnot_cnode inv r0, cnot_cnode inv r1)
+      | res ->
+        res, res
     in
     cofactor t
 

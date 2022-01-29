@@ -1,3 +1,6 @@
+## v0.7.3
+  - Fixed a bug in memoization in cofactor (thanks @JoanThibault)
+
 ## v0.7.1
   - Fixed install
 
